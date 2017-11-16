@@ -80,6 +80,7 @@ public class Main {
         }
 
         for (String item: sentences) {
+            item = item.replaceAll("[^a-zA-Z0-9é'\\-\\s]", "");
             System.out.println(item);
         }
     }
