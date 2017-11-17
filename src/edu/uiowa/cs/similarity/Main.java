@@ -87,10 +87,10 @@ public class Main {
         
         //implement PorterStemmer to remove root words
         PorterStemmer stemmer = new PorterStemmer();
+        //need to figure out how to implement stemmer
+     
         
-       
-
-        
+        //just one way to write in all the words from the txt file, feel free to use a differnt one
         //remove stop words found in stopwords.txt from sentence
         String [] roots = new String [] {"a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are",
             "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot", "could",
@@ -105,6 +105,7 @@ public class Main {
             "which", "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would", "wouldn't", "you", "you'd", "you'll", "you're", "you've",
             "your", "yours", "yourself", "yourselves"};
         
+        //basic idea of what needs to happen, for some reason still won't remove words though when ran
         for (String root : roots) {
             if (sentences.contains(root)) {
                 sentences.remove(root);
