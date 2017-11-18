@@ -5,21 +5,17 @@ import opennlp.tools.stemmer.*;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    
-    InputStream getStopWords() {
-        InputStream in = getClass().getResourceAsStream("stopwords.txt");
-        return in;
-    }
 
     public static void main(String[] args) throws IOException {
         Options options = new Options();
         options.addRequiredOption("f", "file", true, "input file to process");
         options.addOption("h", false, "print this help message");
+        // Part 1
+        options.addOption("s", false, "print words in sentences after corrections and number of sentences");
 
         CommandLineParser parser = new DefaultParser();
 
@@ -44,7 +40,7 @@ public class Main {
             System.exit(0);
         }
         
-        // PART ONE
+        // PART ONE -------------------------------------
         
         // Initializes file
         File temp = new File(filename);
@@ -95,6 +91,7 @@ public class Main {
         }
         
         // Turn each sentence into an individual list [["hello, I'm, bill], ["i", "like", "cats"]]
+        // ^^ list is "sentencesList"
         // Also stem each word and if the word is a stop word it is removed
         List<List<String>> sentencesList = new ArrayList<>();
         PorterStemmer stemmer = new PorterStemmer();
@@ -121,10 +118,25 @@ public class Main {
             sentencesList.add(sentenceInnerList);
         }
         
-        for (List<String> list: sentencesList) {
-            for (String item: list) {
-                System.out.println(item);
+        // Adding command line option s for printing lines
+        if (cmd.hasOption("s")) {
+            String built = "[ ";
+            index = 0;
+            for (List<String> list: sentencesList) {
+                built += "[";
+                int innerIndex = 0;
+               for (String item: list) {
+                   if (innerIndex == 0) {built += item;}
+                   else {built += ", " + item;}
+                    innerIndex ++;
+                }
+               if (index == sentencesList.size() - 1) {built += "] ";}
+               else {built += "], ";}
+            index ++;
             }
+            built += "]";
+            System.out.println(built);
+            System.out.println("Number of sentences: " + index);
         }
     }
 }
