@@ -6,6 +6,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import opennlp.tools.stemmer.*;
 
 public class Main {
 
@@ -82,6 +83,7 @@ public class Main {
         for (String item: sentences) {
             item = item.replaceAll("[^a-zA-Z0-9é'\\-\\s]", "");
             System.out.println(item);
+            PorterStemmer();
         }
     }
 }
