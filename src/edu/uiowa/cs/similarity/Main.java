@@ -5,10 +5,16 @@ import opennlp.tools.stemmer.*;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+    
+    InputStream getStopWords() {
+        InputStream in = getClass().getResourceAsStream("stopwords.txt");
+        return in;
+    }
 
     public static void main(String[] args) throws IOException {
         Options options = new Options();
@@ -79,38 +85,46 @@ public class Main {
                 index ++;
             }
         }
-
-        for (String item: sentences) {
-            item = item.replaceAll("[^a-zA-Z0-9é'\\-\\s]", "");
-            System.out.println(item);
+        // Move all stopwords into a list
+        ArrayList<String> stopWords = new ArrayList<>();
+        ClassLoader cl = Main.class.getClassLoader();
+        File sw = new File(cl.getResource("stopwords.txt").getFile());
+        Scanner stopSc = new Scanner(sw);
+        while (stopSc.hasNext()) {
+            stopWords.add(stopSc.next());
         }
         
-        //implement PorterStemmer to remove root words
+        // Turn each sentence into an individual list [["hello, I'm, bill], ["i", "like", "cats"]]
+        // Also stem each word and if the word is a stop word it is removed
+        List<List<String>> sentencesList = new ArrayList<>();
         PorterStemmer stemmer = new PorterStemmer();
-        //need to figure out how to implement stemmer
-     
         
-        //just one way to write in all the words from the txt file, feel free to use a differnt one
-        //remove stop words found in stopwords.txt from sentence
-        String [] roots = new String [] {"a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are",
-            "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot", "could",
-            "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few", "for", "from", "further",
-            "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's", "her", "here", "here's", "hers",
-            "herself", "him", "himself", "his", "how", "how's", "i", "i'd", "i'll", "i'm", "i've", "if", "in", "into", "is", "isn't", "it",
-            "it's", "its", "itself", "let's", "me", "more", "most", "mustn't", "my", "myself", "no", "nor", "not", "of", "off", "on", "once",
-            "only", "or", "other", "ought", "our", "ours", "ourselves", "out", "over", "own", "same", "shan't", "she", "she'd", "she'll", "she's",
-            "should", "shouldn't", "so", "some", "such", "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "there", 
-            "there's", "these", "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too", "under", "until", "up",
-            "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when", "when's", "where", "where's",
-            "which", "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would", "wouldn't", "you", "you'd", "you'll", "you're", "you've",
-            "your", "yours", "yourself", "yourselves"};
+        // for each sentence
+        index = 0;
+        for (String item: sentences) {
+            // Remove all extra characters and punctuation, except hyphens
+            item = item.replaceAll("[^a-zA-Z0-9é'\\-\\s]","");
+            sentences.set(index, item);
+            index ++;
+            
+            List<String> sentenceInnerList = new ArrayList<>();
+            // For each word in each string
+            for (String word: item.split(" ")) {
+                // if stop word remove it
+                if (stopWords.contains(word)) {
+                    continue;
+                }
+                // not a stop word so stem it and add to list
+                word = stemmer.stem(word);
+                sentenceInnerList.add(word);
+            }
+            sentencesList.add(sentenceInnerList);
+        }
         
-        //basic idea of what needs to happen, for some reason still won't remove words though when ran
-        for (String root : roots) {
-            if (sentences.contains(root)) {
-                sentences.remove(root);
-                System.out.println(sentences);
-            }    
+        for (List<String> list: sentencesList) {
+            for (String item: list) {
+                System.out.println(item);
+            }
         }
     }
 }
