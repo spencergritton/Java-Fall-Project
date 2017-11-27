@@ -4,18 +4,38 @@ import org.apache.commons.cli.*;
 import opennlp.tools.stemmer.*;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
-
+    
+    public static Map<String, Integer> mapCombiner(Map<String, Integer> map1, Map<String, Integer> map2) {
+        
+        Map<String, Integer> tempMap = map1;
+        // for each entry in map 2
+        for (Map.Entry<String, Integer> entry : map2.entrySet()) {
+            
+            // if entry not in map one then add it
+            if (!tempMap.containsKey(entry.getKey())) {
+                tempMap.put(entry.getKey(), entry.getValue());
+            }
+            
+            // otherwise it is in the map and must add the values together
+            else {
+                int valueOfWord = tempMap.get(entry.getKey()) + entry.getValue();
+                tempMap.put(entry.getKey(), valueOfWord);
+            }
+        }
+        return tempMap;
+    }
+    
     public static void main(String[] args) throws IOException {
+        
         Options options = new Options();
         options.addRequiredOption("f", "file", true, "input file to process");
         options.addOption("h", false, "print this help message");
         // Part 1
         options.addOption("s", false, "print words in sentences after corrections and number of sentences");
+        options.addOption("v", false, "print each word with all words it occurs with and frequency of occurance");
 
         CommandLineParser parser = new DefaultParser();
 
@@ -83,9 +103,9 @@ public class Main {
         }
         // Move all stopwords into a list
         ArrayList<String> stopWords = new ArrayList<>();
-        ClassLoader cl = Main.class.getClassLoader();
-        File sw = new File(cl.getResource("stopwords.txt").getFile());
+        File sw = new File("../stopwords.txt");
         Scanner stopSc = new Scanner(sw);
+        
         while (stopSc.hasNext()) {
             stopWords.add(stopSc.next());
         }
@@ -137,6 +157,76 @@ public class Main {
             built += "]";
             System.out.println(built);
             System.out.println("Number of sentences: " + index);
+        }
+        
+        // Semantic Descriptor Vectors Part 2
+        // Dictionary containing keys (words) and values of those keys being other dictionaries
+        // The value dictionary will contain all words in a sentence with said key and how many times they occur together
+        
+        // {"bill: {"is" : 3, "the" : 1, "illest": 2}, "man" : {"stuff" : 1} }
+        
+        
+        // [ [asd, asd, asd], [asd, sdf, sdgg] ]
+        
+        Map<String, Map<String, Integer>> VectorMap = new HashMap<>();
+        // For each sentence in the sentences list
+        for (List l: sentencesList) {
+            // For each word in the sentence
+            for (Object s: l) {
+                
+                // Create a map of all words in the sentence
+                Map<String, Integer> tempMap = new HashMap<>();
+                // for each word in the sentence lookig at
+                for (Object ss: l) {
+                    // if it's the same as the word of the map looking at don't add it
+                    if (ss.equals(s)) {
+                        continue;
+                    }
+                    // otherwise add to the tempMap
+                    // if item not in temp map add it
+                    if (!tempMap.containsKey( (String) ss)) {
+                        tempMap.put((String) ss, 1);
+                        // if item in temp map add it
+                    } else {
+                        int value = tempMap.get( (String) ss) + 1;
+                        tempMap.put((String) ss, value);
+                    }
+                }
+                
+                // Temp map for each word of sentence has been created, now must combine
+                // Current map of each word (if there is one) with the temp map.
+                
+                // If the vector map doens't contain the key already then just add the key and make the value
+                // The temp map
+                if (!VectorMap.containsKey( (String) s)) {
+                    VectorMap.put((String) s, tempMap);
+                } 
+                // other wise the key is already in the map so must combine temp map and current map
+                else {
+                    tempMap = mapCombiner( VectorMap.get(s), tempMap);
+                    VectorMap.put((String) s, tempMap);
+                }
+            }
+        }
+        
+        // Command line option v
+        if (cmd.hasOption("v")) {
+            // For each entry in VectorMap
+            for (Map.Entry<String, Map<String, Integer>> entry : VectorMap.entrySet()) {
+                System.out.println("Entry Word " + entry.getKey());
+                // for each entry in each entry
+                String built = "[";
+                for (Map.Entry<String, Integer> innerEntry : entry.getValue().entrySet()) {
+
+                    built += innerEntry.getKey() + "=" + innerEntry.getValue();
+                    built += ", ";
+
+                }
+                built = built.substring(0, built.length()-2);
+                built += "]";
+                System.out.println(built);
+                System.out.println("");
+            }   
         }
     }
 }
