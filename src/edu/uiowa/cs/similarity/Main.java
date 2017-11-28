@@ -29,6 +29,13 @@ public class Main {
         return tempMap;
     }
     
+    // PART 3, cosine similarity between two words with their given vectors
+    public static double cosineSimilarity(String word1, String word2, Map<String, Integer> word1Vector, Map<String, Integer> word2Vector) {
+        double returnValue = 0;
+        
+        return returnValue;
+    }
+    
     public static void main(String[] args) throws IOException {
         
         Options options = new Options();
