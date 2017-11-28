@@ -8,6 +8,7 @@ import java.util.*;
 
 public class Main {
     
+    // PART 2, combine two hash maps
     public static Map<String, Integer> mapCombiner(Map<String, Integer> map1, Map<String, Integer> map2) {
         
         Map<String, Integer> tempMap = map1;
@@ -164,9 +165,6 @@ public class Main {
         // The value dictionary will contain all words in a sentence with said key and how many times they occur together
         
         // {"bill: {"is" : 3, "the" : 1, "illest": 2}, "man" : {"stuff" : 1} }
-        
-        
-        // [ [asd, asd, asd], [asd, sdf, sdgg] ]
         
         Map<String, Map<String, Integer>> VectorMap = new HashMap<>();
         // For each sentence in the sentences list
