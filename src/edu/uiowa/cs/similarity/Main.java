@@ -65,6 +65,7 @@ public class Main {
         options.addOption("s", false, "print words in sentences after corrections and number of sentences");
         options.addOption("v", false, "print each word with all words it occurs with and frequency of occurance");
         
+        // DON'T PUT A SPACE BETWEEN ARGUEMENTS, CODE EXAMPLE DOES NOT INCLUDE SPACE BETWEEN ARGS
         Option tOption = Option.builder("t")
                          .longOpt("word,number")
                          .numberOfArgs(1)
@@ -94,13 +95,14 @@ public class Main {
                 
         String tWord = cmd.getOptionValue("t");
         String[] argArray = tWord.split(",");
+        
         // tWord is the word we are finding words most similar to
         // tInt is how many similar words we are finding
         tWord = argArray[0];
         int tInt = Integer.parseInt(argArray[1]);
         
         if (cmd.getOptionValue("t") == null ) {
-            System.err.println("t options don't exist"+filename);
+            System.err.println("t options don't exist");
             System.exit(1);
         }
 
@@ -281,7 +283,7 @@ public class Main {
             
             // if tWord not in VectorMap return error
             if (VectorMap.get(tWord) == null) {
-                System.out.println("Cannot compute top-J similarity to Q");
+                System.out.println("Cannot compute top-J similarity to " + tWord);
                 
             } else {
             
