@@ -125,11 +125,8 @@ public class Main {
         // Part 1
         options.addOption("s", false, "print words in sentences after corrections and number of sentences");
         options.addOption("v", false, "print each word with all words it occurs with and frequency of occurance");
-<<<<<<< HEAD
         
         // DON'T PUT A SPACE BETWEEN ARGUEMENTS, CODE EXAMPLE DOES NOT INCLUDE SPACE BETWEEN ARGS
-=======
->>>>>>> 8083280a6b521bf88f463a941d4f98a640835f67
         Option tOption = Option.builder("t")
                          .longOpt("word,number")
                          .numberOfArgs(1)
@@ -165,13 +162,9 @@ public class Main {
         // tInt is how many similar words we are finding
         tWord = argArray[0];
         int tInt = Integer.parseInt(argArray[1]);
-<<<<<<< HEAD
-        
-        if (cmd.getOptionValue("t") == null ) {
-=======
+
 
         if (cmd.getOptionValue("t") == null) {
->>>>>>> 8083280a6b521bf88f463a941d4f98a640835f67
             System.err.println("t options don't exist");
             System.exit(1);
         }    
