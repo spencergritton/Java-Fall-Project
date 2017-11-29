@@ -14,7 +14,7 @@ public class Main {
         Map<String, Integer> tempMap = map1;
         // for each entry in map 2
         for (Map.Entry<String, Integer> entry : map2.entrySet()) {
-            
+           
             // if entry not in map one then add it
             if (!tempMap.containsKey(entry.getKey())) {
                 tempMap.put(entry.getKey(), entry.getValue());
@@ -29,25 +29,76 @@ public class Main {
         return tempMap;
     }
     
-    // PART 3, cosine similarity between two words with their given vectors
-    public static double cosineSimilarity(String word1, String word2, Map<String, Integer> word1Vector, Map<String, Integer> word2Vector) {
-        double returnValue = 0;
+    public static double cosSim(Map<String, Integer> map1, Map<String, Integer> map2) {
+        double dotProduct = 0;
+        double normVect1 = 0;
+        double normVect2 = 0;
         
-        
-        return returnValue;
+        for (Map.Entry<String, Integer> entry : map2.entrySet()) {
+            System.out.println(entry);
+        }
+        return 0;
     }
     
-    /*public static double cosineSimilarity(double[] vectorA, double[] vectorB) {
-    double dotProduct = 0.0;
-    double normA = 0.0;
-    double normB = 0.0;
-    for (int i = 0; i < vectorA.length; i++) {
-        dotProduct += vectorA[i] * vectorB[i];
-        normA += Math.pow(vectorA[i], 2);
-        normB += Math.pow(vectorB[i], 2);
-    }   
-    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
-}*/
+    // PART 3, cosine similarity between two words with their given vectors
+    /*public static double cosineSimilarity(Map<String, Integer> word1Vector, Map<String, Integer> word2Vector) {
+        double dotProduct = 0;
+        double normVect1 = 0;
+        double normVect2 = 0;
+        
+        if ( word1Vector.size() > word2Vector.size()) {
+            for (int i = 0; i < word1Vector.size(); i++) {
+                dotProduct += word1Vector.get(i) * word2Vector.get(i);
+                normVect1 += Math.pow(word1Vector.get(i), 2);
+                normVect2 += Math.pow(word2Vector.get(i), 2);
+            }
+        } else {
+            for (int i = 0; i < word2Vector.size(); i++) {
+                dotProduct += word1Vector.get(i) * word2Vector.get(i);
+                normVect1 += Math.pow(word1Vector.get(i), 2);
+                normVect2 += Math.pow(word2Vector.get(i), 2);
+            }
+        }
+        return dotProduct / (Math.sqrt(normVect1) * Math.sqrt(normVect2));
+    }*/
+    
+
+    //Part 3 Cosine Similarity Method
+    public static Map<String, Integer> cosineTermMapHelper(String[] Terms) {
+        Map<String, Integer> cosineTermMap = new HashMap<>();
+        for (String term : Terms) {
+            Integer n = cosineTermMap.get(term);
+            n = (n == null) ? 1 : ++n;
+            cosineTermMap.put(term, n);
+        }
+        return cosineTermMap;
+    }
+    
+    public static double cosineSim (String word1, String word2) {
+        Map<String, Integer> u = cosineTermMapHelper(word1.split("\\W+"));
+        Map<String, Integer> v = cosineTermMapHelper(word2.split("\\W+"));
+        
+        
+        HashSet<String> same = new HashSet<>(u.keySet());
+        same.retainAll(v.keySet());
+        
+        double dotProduct = 0, magU =0, magV = 0;
+        
+        for(String item : same) {
+            dotProduct += u.get(item) * v.get(item);
+        }
+        
+        for (String x : u.keySet()) {
+            magU += Math.pow(u.get(x), 2);
+        }
+        
+        for (String x : v.keySet()) {
+            magV += Math.pow(v.get(x), 2);
+        }
+        
+        return dotProduct / Math.sqrt(magU * magV);
+    }
+    
     public static void main(String[] args) throws IOException {
         
         Options options = new Options();
@@ -135,6 +186,7 @@ public class Main {
         // Also stem each word and if the word is a stop word it is removed
         List<List<String>> sentencesList = new ArrayList<>();
         PorterStemmer stemmer = new PorterStemmer();
+       
         
         // for each sentence
         index = 0;
@@ -182,9 +234,7 @@ public class Main {
         // Semantic Descriptor Vectors Part 2
         // Dictionary containing keys (words) and values of those keys being other dictionaries
         // The value dictionary will contain all words in a sentence with said key and how many times they occur together
-        
         // {"bill: {"is" : 3, "the" : 1, "illest": 2}, "man" : {"stuff" : 1} }
-        
         Map<String, Map<String, Integer>> VectorMap = new HashMap<>();
         // For each sentence in the sentences list
         for (List l: sentencesList) {
@@ -195,6 +245,7 @@ public class Main {
                 Map<String, Integer> tempMap = new HashMap<>();
                 // for each word in the sentence lookig at
                 for (Object ss: l) {
+                    
                     // if it's the same as the word of the map looking at don't add it
                     if (ss.equals(s)) {
                         continue;
@@ -222,10 +273,10 @@ public class Main {
                 else {
                     tempMap = mapCombiner( VectorMap.get(s), tempMap);
                     VectorMap.put((String) s, tempMap);
-                }
+                }      
             }
         }
-        
+       
         // Command line option v
         if (cmd.hasOption("v")) {
             // For each entry in VectorMap
@@ -237,13 +288,36 @@ public class Main {
 
                     built += innerEntry.getKey() + "=" + innerEntry.getValue();
                     built += ", ";
-
+                    // # of words that occur with entry word
+                    //System.out.println(innerEntry.getValue());
                 }
                 built = built.substring(0, built.length()-2);
                 built += "]";
                 System.out.println(built);
                 System.out.println("");
-            }   
+                // # of sentences entry word occurs in
+                //System.out.println(entry.getValue().size());
+            }  
         }
+        
+        /*Map<String, Integer> numOfSentencesPerWord = new HashMap<>();
+        int count = 0;
+        for (List sentenceIndv : sentencesList) {
+            
+            for (Object word : sentenceIndv) {
+                Map<String, Integer> tempTempMap = new HashMap<>();
+                
+                for(Object specific : sentenceIndv) {
+                    if (specific.equals(word)) {
+                        tempTempMap.put((String) specific, 1);
+                    }
+                    //System.out.println(tempTempMap);
+                }
+                
+            }
+            
+        }
+        System.out.println(sentencesList);
+        System.out.println(sentencesList);*/
     }
 }
