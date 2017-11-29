@@ -37,6 +37,14 @@ public class Main {
         return returnValue;
     }
     
+    public static TreeMap<String, Double> mapValuesSorted(Map<String, Double> map){
+        // uses ValueComparator to sort map by values
+		Comparator<String> comparator = new MapComparator(map);
+		TreeMap<String, Double> finalMap = new TreeMap<String, Double>(comparator);
+		finalMap.putAll(map);
+		return finalMap;
+	}
+    
     /*public static double cosineSimilarity(double[] vectorA, double[] vectorB) {
     double dotProduct = 0.0;
     double normA = 0.0;
@@ -56,7 +64,17 @@ public class Main {
         // Part 1
         options.addOption("s", false, "print words in sentences after corrections and number of sentences");
         options.addOption("v", false, "print each word with all words it occurs with and frequency of occurance");
+        
+        Option tOption = Option.builder("t")
+                         .longOpt("word,number")
+                         .numberOfArgs(1)
+                         .required(true)
+                         .type(String.class)
+                         .desc("")
+                         .build();
 
+        
+        options.addOption(tOption);
         CommandLineParser parser = new DefaultParser();
 
         CommandLine cmd = null;
@@ -73,6 +91,18 @@ public class Main {
 			System.err.println("file does not exist "+filename);
 			System.exit(1);
 		}
+                
+        String tWord = cmd.getOptionValue("t");
+        String[] argArray = tWord.split(",");
+        // tWord is the word we are finding words most similar to
+        // tInt is how many similar words we are finding
+        tWord = argArray[0];
+        int tInt = Integer.parseInt(argArray[1]);
+        
+        if (cmd.getOptionValue("t") == null ) {
+            System.err.println("t options don't exist"+filename);
+            System.exit(1);
+        }
 
         if (cmd.hasOption("h")) {
             HelpFormatter helpf = new HelpFormatter();
@@ -244,6 +274,59 @@ public class Main {
                 System.out.println(built);
                 System.out.println("");
             }   
+        }
+        
+        // If there is an option t then then must print the tInt most similar words to tWord.
+        if (cmd.hasOption("t")) {
+            
+            // if tWord not in VectorMap return error
+            if (VectorMap.get(tWord) == null) {
+                System.out.println("Cannot compute top-J similarity to Q");
+                
+            } else {
+            
+                // Create a Map/Dict of all words and their cosine similarity to tWord
+                Map<String, Double> cosSimMap = new HashMap<>();
+
+                // The Vector of tWord
+                Map <String, Integer> tWordMap = VectorMap.get(tWord);
+
+                // For each word vector entry calculate it's cosine similarity to tWord vector
+                for (Map.Entry<String, Map<String, Integer>> entry : VectorMap.entrySet()) {
+
+                    // This part with random is just to test the sorting algorithmn
+                    Random r = new Random(); 
+                    Double d = r.nextDouble();
+
+                    Double cosineSim = d;
+                    // cosineSim = COSINE SIMILARITY FUNCTION GOES HERE
+
+                    cosSimMap.put(entry.getKey(), cosineSim);
+                }
+                // Sort cosSimMap to make most similar vectors appear at the start of the map
+                cosSimMap = mapValuesSorted(cosSimMap);
+
+                // Make the return map not include the 0 index (as that is the most similar element)
+                // Also make it only return "tInt" amount of elements.
+                cosSimMap.remove(tWord);
+                System.out.println(cosSimMap);
+                
+                // if the map is bigger than desired size then add its elements to a temp map until it equals that size
+                // then return the tempMap, else return the cosSimMap.
+                if (cosSimMap.size() > tInt) {
+                    Map<String, Double> tempMap = new HashMap<>();
+                    
+                    for (Map.Entry<String, Double> entry : cosSimMap.entrySet()) {
+                        if (tempMap.size()!= tInt) {
+                            tempMap.put(entry.getKey(), entry.getValue());
+                        }
+                    }
+                    tempMap = mapValuesSorted(tempMap);
+                    System.out.println(tempMap);
+                } else {
+                    System.out.println(cosSimMap);
+                }
+            }
         }
     }
 }
