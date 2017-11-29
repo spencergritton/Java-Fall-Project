@@ -33,9 +33,21 @@ public class Main {
     public static double cosineSimilarity(String word1, String word2, Map<String, Integer> word1Vector, Map<String, Integer> word2Vector) {
         double returnValue = 0;
         
+        
         return returnValue;
     }
     
+    /*public static double cosineSimilarity(double[] vectorA, double[] vectorB) {
+    double dotProduct = 0.0;
+    double normA = 0.0;
+    double normB = 0.0;
+    for (int i = 0; i < vectorA.length; i++) {
+        dotProduct += vectorA[i] * vectorB[i];
+        normA += Math.pow(vectorA[i], 2);
+        normB += Math.pow(vectorB[i], 2);
+    }   
+    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+}*/
     public static void main(String[] args) throws IOException {
         
         Options options = new Options();
