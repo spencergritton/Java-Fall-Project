@@ -309,7 +309,6 @@ public class Main {
                 // Make the return map not include the 0 index (as that is the most similar element)
                 // Also make it only return "tInt" amount of elements.
                 cosSimMap.remove(tWord);
-                System.out.println(cosSimMap);
                 
                 // if the map is bigger than desired size then add its elements to a temp map until it equals that size
                 // then return the tempMap, else return the cosSimMap.
