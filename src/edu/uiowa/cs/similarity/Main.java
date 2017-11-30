@@ -168,14 +168,12 @@ public class Main {
         
         // DON'T PUT A SPACE BETWEEN ARGUEMENTS, CODE EXAMPLE DOES NOT INCLUDE SPACE BETWEEN ARGS
         Option tOption = Option.builder("t")
-                         .longOpt("word,number")
-                         .numberOfArgs(1)
-                         .required(true)
-                         .type(String.class)
-                         .desc("")
-                         .build();
-
-        
+            .longOpt("word,number")
+            .numberOfArgs(1)
+            .type(String.class)
+            .desc("")
+            .required(false)
+            .build();
         options.addOption(tOption);
 
         CommandLineParser parser = new DefaultParser();
@@ -194,20 +192,6 @@ public class Main {
 			System.err.println("file does not exist "+filename);
 			System.exit(1);
 		}
-                
-        String tWord = cmd.getOptionValue("t");
-        String[] argArray = tWord.split(",");
-        
-        // tWord is the word we are finding words most similar to
-        // tInt is how many similar words we are finding
-        tWord = argArray[0];
-        int tInt = Integer.parseInt(argArray[1]);
-
-
-        if (cmd.getOptionValue("t") == null) {
-            System.err.println("t options don't exist");
-            System.exit(1);
-        }    
 
         if (cmd.hasOption("h")) {
             HelpFormatter helpf = new HelpFormatter();
@@ -379,6 +363,14 @@ public class Main {
         
         // If there is an option t then then must print the tInt most similar words to tWord.
         if (cmd.hasOption("t")) {
+            
+            String tWord = cmd.getOptionValue("t");
+            String[] argArray = tWord.split(",");
+
+            // tWord is the word we are finding words most similar to
+            // tInt is how many similar words we are finding
+            tWord = argArray[0];
+            int tInt = Integer.parseInt(argArray[1]);
             
             // if tWord not in VectorMap return error
             if (VectorMap.get(tWord) == null) {
