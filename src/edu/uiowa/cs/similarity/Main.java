@@ -38,88 +38,8 @@ public class Main {
         return tempMap;
     }
     
-    //Start Brady Code
-    //Right now word=man and map2 = all the entries
-    /*public static double cosineSimilarity(String word1, String word2) {
-        double dotProduct = 0;
-        double normVect1 = 0;
-        double normVect2 = 0;
-        
-        int count = 0;
-        System.out.println(word1);
-        System.out.println(word2);
-        //need to check 
-        
-        for (Map.Entry<String, Integer> entry : map2.entrySet()) {
-            //System.out.println(entry);
-            //System.out.println(entry.getKey());
-            if(entry.getKey().contains(word1)) {
-                count += 1;
-            }
-            if (count >= 1) {
-                System.out.println(count);
-            }
-            System.out.println(count);
-        }
-        return 0;
-    }
-  
-    //Part 3 Cosine Similarity Method
-    public static Map<String, Integer> cosineTermMapHelper(String[] Terms) {
-        Map<String, Integer> cosineTermMap = new HashMap<>();
-        for (String term : Terms) {
-            Integer n = cosineTermMap.get(term);
-            n = (n == null) ? 1 : ++n;
-            cosineTermMap.put(term, n);
-        }
-        return cosineTermMap;
-    }
-    
-    public static double cosineSim (String word1, String word2) {
-        Map<String, Integer> u = cosineTermMapHelper(word1.split("\\W+"));
-        Map<String, Integer> v = cosineTermMapHelper(word2.split("\\W+"));
-        // Word 1 - tWord "dog"
-        // Word 2 - 
-        //System.out.println(word1);
-        //System.out.println(word2);
-        
-        //System.out.println(u);
-        //System.out.println(v); 
-        
-        //System.out.println(u.keySet());
-        //System.out.println(v.keySet());
-        
-        HashSet<String> same = new HashSet<>(u.keySet());
-        same.retainAll(v.keySet());
-        
-        double dotProduct = 0, magU =0, magV = 0;
-        
-        for(String item : same) {
-            //System.out.println(item);
-            dotProduct += u.get(item) * v.get(item);
-            //System.out.println(dotProduct);
-        }
-        
-        for (String x : u.keySet()) {
-            //System.out.println(x);
-            magU += Math.pow(u.get(x), 2);
-            //System.out.println(magU);
-        }
-        
-        for (String y : v.keySet()) {
-            //System.out.println(y);
-            magV += Math.pow(v.get(y), 2);
-            //System.out.println(magV);
-        }
-        
-        //System.out.println(dotProduct / Math.sqrt(magU * magV));
-        return dotProduct / Math.sqrt(magU * magV);
-    }
-    
-    //End Brady Code */
-    
     // Note if this part is given Stemmed and stopworded file it won't produce the right CosSimilarity because of how the math is given in the project requirements.
-    public static Double testCosineSimilarity(String word1, String word2, Map <String, Integer> word1Map, Map <String, Integer> word2Map, List<List<String>> sentencesList) {
+    public static Double CosineSimilarity(String word1, String word2, Map <String, Integer> word1Map, Map <String, Integer> word2Map, List<List<String>> sentencesList) {
         // Calculate Numerator which is how many sentences word 1 is in * how many sentences word 2 is in.
         int word1DotProduct = 0;
         int word2DotProduct = 0;
@@ -171,7 +91,7 @@ public class Main {
             .longOpt("word,number")
             .numberOfArgs(1)
             .type(String.class)
-            .desc("")
+            .desc("Print top J similarities to input word -t word,J")
             .required(false)
             .build();
         options.addOption(tOption);
@@ -350,11 +270,15 @@ public class Main {
                 System.out.println("Entry Word " + entry.getKey());
                 // for each entry in each entry
                 String built = "[";
+                boolean tracker = false;
                 for (Map.Entry<String, Integer> innerEntry : entry.getValue().entrySet()) {
                     built += innerEntry.getKey() + "=" + innerEntry.getValue();
                     built += ", ";
+                    tracker = true;
                 }
-                built = built.substring(0, built.length()-2);
+                if (tracker == true) {
+                    built = built.substring(0, built.length()-2);
+                }
                 built += "]";
                 System.out.println(built);
                 System.out.println("");
@@ -394,7 +318,7 @@ public class Main {
                     Double cosineSim;
                     // Should output cosine similarity between tWord and entry.getValue() (gives map of entry.getKey() aka comparison word
 
-                    cosineSim = testCosineSimilarity(tWord, entry.getKey(), tWordMap, entry.getValue(), sentencesList);
+                    cosineSim = CosineSimilarity(tWord, entry.getKey(), tWordMap, entry.getValue(), sentencesList);
                     
                     cosSimMap.put(entry.getKey(), cosineSim);
                     }
