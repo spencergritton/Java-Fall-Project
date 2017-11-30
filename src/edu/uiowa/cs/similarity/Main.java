@@ -75,6 +75,8 @@ public class Main {
         return cosineTermMap;
     }
     
+    
+    //word1 is "dog" word2 is each other word from the entry vector
     public static double cosineSim (String word1, String word2) {
         Map<String, Integer> u = cosineTermMapHelper(word1.split("\\W+"));
         Map<String, Integer> v = cosineTermMapHelper(word2.split("\\W+"));
@@ -97,7 +99,7 @@ public class Main {
             //System.out.println(item);
             dotProduct += u.get(item) * v.get(item);
             //System.out.println(dotProduct);
-        }
+        } 
         
         for (String x : u.keySet()) {
             //System.out.println(x);
@@ -364,6 +366,7 @@ public class Main {
                     // Should output cosine similarity between tWord and entry.getValue() (gives map of entry.getKey() aka comparison word
                     
                     //new code
+                    //tword = man and entry.getKey() gets every word from the text in order to compare
                     cosineSim = cosineSim(tWord, entry.getKey());
                     
                     cosSimMap.put(entry.getKey(), cosineSim);
