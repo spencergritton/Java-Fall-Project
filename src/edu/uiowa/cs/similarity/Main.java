@@ -40,20 +40,8 @@ public class Main {
     
     // Note if this part is given Stemmed and stopworded file it won't produce the right CosSimilarity because of how the math is given in the project requirements.
     public static Double CosineSimilarity(String word1, String word2, Map <String, Integer> word1Map, Map <String, Integer> word2Map, List<List<String>> sentencesList) {
-        // Calculate Numerator which is how many sentences word 1 is in * how many sentences word 2 is in.
-        int word1DotProduct = 0;
-        int word2DotProduct = 0;
-        if (word2.equals(word2))
-        for (List<String> l: sentencesList) {
-            
-            if (l.contains(word1)) {
-                word1DotProduct ++;
-            }
-            if (l.contains(word2)) {
-                word2DotProduct ++;
-            }
-        }
-        int Numerator = word1DotProduct*word2DotProduct;
+        // Calculate Numerator which is the summation of the multiplication of  count of each word that is in the vector of each word 
+        int Numerator = 0;
         
         // Now denometer must be found. which is the (summation of each word count^2 * other summation)^1/2
         
@@ -65,6 +53,12 @@ public class Main {
         // for each value in word1Map add the square of that value to it's summation
         for (Map.Entry<String, Integer> entry : word1Map.entrySet()) {
             word1SummationSquared = word1SummationSquared + Math.pow(entry.getValue(), 2);
+            // While iterating also calculate Numerator to save time
+            // if word2Map contains this key that is in word one map
+            if (word2Map.containsKey(entry.getKey())) {
+                // Then add the multiplication of the number of times each occur to the Numerator summation.
+                Numerator = Numerator + (entry.getValue()*word2Map.get(entry.getKey()));
+            }
         }
         // for each value in word2Map add the square of that value to it's summation
         for (Map.Entry<String, Integer> entry : word2Map.entrySet()) {
@@ -73,6 +67,13 @@ public class Main {
         
         Double Denominator = word1SummationSquared*word2SummationSquared;
         Denominator = Math.pow(Denominator, .5);
+        
+        if (Denominator.equals(0.0)) {
+            return 0.0;
+        }
+        if (Numerator == 0) {
+            return 0.0;
+        }
 
         return (Numerator/Denominator);
     }
