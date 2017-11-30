@@ -62,7 +62,7 @@ public class Main {
             System.out.println(count);
         }
         return 0;
-    }*/
+    }
   
     //Part 3 Cosine Similarity Method
     public static Map<String, Integer> cosineTermMapHelper(String[] Terms) {
@@ -78,7 +78,8 @@ public class Main {
     public static double cosineSim (String word1, String word2) {
         Map<String, Integer> u = cosineTermMapHelper(word1.split("\\W+"));
         Map<String, Integer> v = cosineTermMapHelper(word2.split("\\W+"));
-        
+        // Word 1 - tWord "dog"
+        // Word 2 - 
         //System.out.println(word1);
         //System.out.println(word2);
         
@@ -115,7 +116,46 @@ public class Main {
         return dotProduct / Math.sqrt(magU * magV);
     }
     
-    //End Brady Code
+    //End Brady Code */
+    
+    // Note if this part is given Stemmed and stopworded file it won't produce the right CosSimilarity because of how the math is given in the project requirements.
+    public static Double testCosineSimilarity(String word1, String word2, Map <String, Integer> word1Map, Map <String, Integer> word2Map, List<List<String>> sentencesList) {
+        // Calculate Numerator which is how many sentences word 1 is in * how many sentences word 2 is in.
+        int word1DotProduct = 0;
+        int word2DotProduct = 0;
+        if (word2.equals(word2))
+        for (List<String> l: sentencesList) {
+            
+            if (l.contains(word1)) {
+                word1DotProduct ++;
+            }
+            if (l.contains(word2)) {
+                word2DotProduct ++;
+            }
+        }
+        int Numerator = word1DotProduct*word2DotProduct;
+        
+        // Now denometer must be found. which is the (summation of each word count^2 * other summation)^1/2
+        
+        // first need to find the summation for each word's words squared.
+        // to do this use word1Map and word2Map args.
+        Double word1SummationSquared = 0.0;
+        Double word2SummationSquared = 0.0;
+        
+        // for each value in word1Map add the square of that value to it's summation
+        for (Map.Entry<String, Integer> entry : word1Map.entrySet()) {
+            word1SummationSquared = word1SummationSquared + Math.pow(entry.getValue(), 2);
+        }
+        // for each value in word2Map add the square of that value to it's summation
+        for (Map.Entry<String, Integer> entry : word2Map.entrySet()) {
+            word2SummationSquared = word2SummationSquared + Math.pow(entry.getValue(), 2);
+        }
+        
+        Double Denominator = word1SummationSquared*word2SummationSquared;
+        Denominator = Math.pow(Denominator, .5);
+
+        return (Numerator/Denominator);
+    }
     
     public static void main(String[] args) throws IOException {
         
@@ -355,27 +395,21 @@ public class Main {
                 // For each word vector entry calculate it's cosine similarity to tWord vector
                 for (Map.Entry<String, Map<String, Integer>> entry : VectorMap.entrySet()) {
 
-                    // This part with random is just to test the sorting algorithmn
-                    Random r = new Random(); 
-                    Double d = r.nextDouble();
-
-                    Double cosineSim = d;
-                    // cosineSim = COSINE SIMILARITY FUNCTION GOES HERE
-                    // Should output cosine similarity between tWord and entry.getValue() (gives map of entry.getKey() aka comparison word
+                    if (entry.getKey().equals(tWord)) {
+                        continue;
+                    } else {
                     
-                    //new code
-                    cosineSim = cosineSim(tWord, entry.getKey());
+                    Double cosineSim;
+                    // Should output cosine similarity between tWord and entry.getValue() (gives map of entry.getKey() aka comparison word
+
+                    cosineSim = testCosineSimilarity(tWord, entry.getKey(), tWordMap, entry.getValue(), sentencesList);
                     
                     cosSimMap.put(entry.getKey(), cosineSim);
-                   
+                    }
                 }
                 // Sort cosSimMap to make most similar vectors appear at the start of the map
                 cosSimMap = mapValuesSorted(cosSimMap);
 
-                // Make the return map not include the 0 index (as that is the most similar element)
-                // Also make it only return "tInt" amount of elements.
-                cosSimMap.remove(tWord);
-                
                 // if the map is bigger than desired size then add its elements to a temp map until it equals that size
                 // then return the tempMap, else return the cosSimMap.
                 if (cosSimMap.size() > tInt) {
