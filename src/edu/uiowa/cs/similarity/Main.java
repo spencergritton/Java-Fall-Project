@@ -11,7 +11,7 @@ public class Main {
     public static TreeMap<String, Double> mapValuesSorted(Map<String, Double> map) {
         // uses ValueComparator to sort map by values
         Comparator<String> comparator = new MapComparator(map);
-        TreeMap<String, Double> finalMap = new TreeMap<>(comparator);
+        TreeMap<String, Double> finalMap = new TreeMap<String, Double>(comparator);
         finalMap.putAll(map);
         return finalMap;
     }
