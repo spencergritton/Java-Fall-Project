@@ -78,6 +78,14 @@ public class Main {
         return (Numerator/Denominator);
     }
     
+    public static double EuclideanSimilarity(String word1, String word2, Map <String, Integer> word1Map, Map <String, Integer> word2Map) {
+        
+    }
+    
+    public static double EuclideanSimilarityNormalized(String word1, String word2, Map <String, Integer> word1Map, Map <String, Integer> word2Map) {
+        
+    }
+    
     public static void main(String[] args) throws IOException {
         
         Options options = new Options();
@@ -96,6 +104,17 @@ public class Main {
             .required(false)
             .build();
         options.addOption(tOption);
+        
+        Option mOption = Option.builder("m")
+            .longOpt("-m type of similarity measure")
+            .numberOfArgs(1)
+            .type(String.class)
+            .desc("Decide what similarity measure top-j uses")
+            .required(false)
+            .build();
+        options.addOption(mOption);
+        
+        String mOpt = "cosine";
 
         CommandLineParser parser = new DefaultParser();
 
@@ -197,6 +216,20 @@ public class Main {
                 sentenceInnerList.add(word);
             }
             sentencesList.add(sentenceInnerList);
+        }
+        
+        if (cmd.hasOption("m")) {
+            String mWord = cmd.getOptionValue("m");
+            if (mWord.equals("euc")) {
+                mOpt = "euc";
+            }
+            else if (mWord.equals("eucnorm")) {
+                mOpt = "eucnorm";
+            }
+            else if (!mWord.equals("cosine")) {
+                System.err.println("please input a valid similarity measure: cosine, euc, or eucnorm");
+                System.exit(1);
+            }
         }
         
         // Adding command line option s for printing lines
@@ -304,7 +337,7 @@ public class Main {
             } else {
             
                 // Create a Map/Dict of all words and their cosine similarity to tWord
-                Map<String, Double> cosSimMap = new HashMap<>();
+                Map<String, Double> SimMap = new HashMap<>();
 
                 // The Vector of tWord
                 Map <String, Integer> tWordMap = VectorMap.get(tWord);
@@ -316,23 +349,31 @@ public class Main {
                         continue;
                     } else {
                     
-                    Double cosineSim;
-                    // Should output cosine similarity between tWord and entry.getValue() (gives map of entry.getKey() aka comparison word
-
-                    cosineSim = CosineSimilarity(tWord, entry.getKey(), tWordMap, entry.getValue());
+                    Double Sim = 0.0;
+                    // Should output similarity between tWord and entry.getValue() (gives map of entry.getKey() aka comparison word
                     
-                    cosSimMap.put(entry.getKey(), cosineSim);
+                    if (mOpt.equals("euc")) {
+                        //Sim = EuclideanSimilarity(tWord, entry.getKey(), tWordMap, entry.getValue());
+                    }
+                    else if (mOpt.equals("eucnorm")) {
+                        //Sim = EuclideanSimilarityNormalized(tWord, entry.getKey(), tWordMap, entry.getValue());
+                    }
+                    else {
+                        Sim = CosineSimilarity(tWord, entry.getKey(), tWordMap, entry.getValue());
+                    }
+                    
+                    SimMap.put(entry.getKey(), Sim);
                     }
                 }
                 // Sort cosSimMap to make most similar vectors appear at the start of the map
-                cosSimMap = mapValuesSorted(cosSimMap);
+                SimMap = mapValuesSorted(SimMap);
 
                 // if the map is bigger than desired size then add its elements to a temp map until it equals that size
                 // then return the tempMap, else return the cosSimMap.
-                if (cosSimMap.size() > tInt) {
+                if (SimMap.size() > tInt) {
                     Map<String, Double> tempMap = new HashMap<>();
                     
-                    for (Map.Entry<String, Double> entry : cosSimMap.entrySet()) {
+                    for (Map.Entry<String, Double> entry : SimMap.entrySet()) {
                         if (tempMap.size()!= tInt) {
                             tempMap.put(entry.getKey(), entry.getValue());
                         }
@@ -340,9 +381,10 @@ public class Main {
                     tempMap = mapValuesSorted(tempMap);
                     System.out.println(tempMap);
                 } else {
-                    System.out.println(cosSimMap);
+                    System.out.println(SimMap);
                 }
             }
         }
+        
     }
 }
