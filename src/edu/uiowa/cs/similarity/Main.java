@@ -113,8 +113,69 @@ public class Main {
         return returnValue;
     }
     
+    // From the example in the PDF of Euclidean Similarity Normalized
+    /*
+    D% = (1,4,1,0,0,0) 
+    D' = (3,0,0,1,1,2) 
+    (1+16+1)^1/2
+    18^1/2 = 4.242640687
+
+    (9+1+1+4)^1/2
+    15^(1/2) = 3.872983346
+
+    -((1/4.242640687-3/3.872983346)^2+(4/4.242640687-0)^2+(1/4.242640687-0)^2+(0-1/3.872983346)^2+(0-1/3.872983346)^2+(0-2/3.872983346)^2)^(1/2) 
+    = -1.278613166
+*/
+    
     public static double EuclideanSimilarityNormalized(String word1, String word2, Map <String, Integer> word1Map, Map <String, Integer> word2Map) {
-        return 0.0;
+        // First must find the normalization of word1Map vector and word2Map vector.
+        // Do this by looping through each vector, adding up their counts^2 then squaring the entire number.
+        Double word1Normalization = 0.0;
+        Double word2Normalization = 0.0;
+        
+        for (Map.Entry<String, Integer> entry : word1Map.entrySet()) {
+            word1Normalization += Math.pow(entry.getValue(), 2);
+        }
+        word1Normalization = Math.pow(word1Normalization, 0.5);
+        for (Map.Entry<String, Integer> entry : word2Map.entrySet()) {
+            word2Normalization += Math.pow(entry.getValue(), 2);
+        }
+        word2Normalization = Math.pow(word2Normalization, 0.5);
+        
+        // Now that normalizations are calculated proceed more or less exactly as EuclideanSimilarity EXCEPT
+        // now it looks like ES(a,b) = ( (a1/anorm - b1/bnorm)^2 + (a2/anorm - b2/bnorm)^2 )^(1/2)
+        
+        Double returnValue = 0.0;
+        List<String> seenWords = new ArrayList<>();
+        
+        // for each item in word1 map, if the item is not word one
+        // Then take (a1-b1) and add it to the return value
+        // The problem with this is we also have to include when the word isn't in word1Map but IS in word2Map
+        // so for each word we find in map1 append to a list and then when iterating through map 2 only include words 
+        // Not in the list of words already seen.
+        for (Map.Entry<String, Integer> entry : word1Map.entrySet()) {
+            seenWords.add(entry.getKey());
+            
+            if (word2Map.containsKey(entry.getKey())) {
+                returnValue += Math.pow((entry.getValue()/word1Normalization)-(word2Map.get(entry.getKey())/word2Normalization), 2);
+            }
+            else {
+                returnValue += Math.pow((entry.getValue()/word1Normalization), 2);
+            }
+        }
+        
+        for (Map.Entry<String, Integer> entry : word2Map.entrySet()) {
+            // only add extra words if they aren't in word1Map but ARE in word2Map
+            if (!seenWords.contains(entry.getKey())) {
+                seenWords.add(entry.getKey());   
+                
+                // only words in here can be the ones not already added so word1Map vector of the word must be 0
+                returnValue += Math.pow((entry.getValue()/word2Normalization), 2);
+            }
+        }
+        returnValue = Math.pow(returnValue, 0.5);
+        returnValue = -returnValue;
+        return returnValue;
     }
     
     public static void main(String[] args) throws IOException {
@@ -387,7 +448,7 @@ public class Main {
                         Sim = EuclideanSimilarity(tWord, entry.getKey(), tWordMap, entry.getValue());
                     }
                     else if (mOpt.equals("eucnorm")) {
-                        //Sim = EuclideanSimilarityNormalized(tWord, entry.getKey(), tWordMap, entry.getValue());
+                        Sim = EuclideanSimilarityNormalized(tWord, entry.getKey(), tWordMap, entry.getValue());
                     }
                     else {
                         Sim = CosineSimilarity(tWord, entry.getKey(), tWordMap, entry.getValue());
