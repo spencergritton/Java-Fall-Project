@@ -39,7 +39,7 @@ public class Main {
     }
     
     // Note if this part is given Stemmed and stopworded file it won't produce the right CosSimilarity because of how the math is given in the project requirements.
-    public static Double CosineSimilarity(String word1, String word2, Map <String, Integer> word1Map, Map <String, Integer> word2Map, List<List<String>> sentencesList) {
+    public static Double CosineSimilarity(String word1, String word2, Map <String, Integer> word1Map, Map <String, Integer> word2Map) {
         // Calculate Numerator which is the summation of the multiplication of  count of each word that is in the vector of each word 
         int Numerator = 0;
         
@@ -319,7 +319,7 @@ public class Main {
                     Double cosineSim;
                     // Should output cosine similarity between tWord and entry.getValue() (gives map of entry.getKey() aka comparison word
 
-                    cosineSim = CosineSimilarity(tWord, entry.getKey(), tWordMap, entry.getValue(), sentencesList);
+                    cosineSim = CosineSimilarity(tWord, entry.getKey(), tWordMap, entry.getValue());
                     
                     cosSimMap.put(entry.getKey(), cosineSim);
                     }
