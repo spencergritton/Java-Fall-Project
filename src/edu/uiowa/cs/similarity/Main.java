@@ -38,7 +38,6 @@ public class Main {
         return tempMap;
     }
     
-    // Note if this part is given Stemmed and stopworded file it won't produce the right CosSimilarity because of how the math is given in the project requirements.
     public static Double CosineSimilarity(String word1, String word2, Map <String, Integer> word1Map, Map <String, Integer> word2Map) {
         // Calculate Numerator which is the summation of the multiplication of  count of each word that is in the vector of each word 
         int Numerator = 0;
