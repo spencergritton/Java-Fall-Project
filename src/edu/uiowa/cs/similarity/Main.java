@@ -503,6 +503,19 @@ public class Main {
             int clusters = Integer.parseInt(argArray[0]);
             int iterations = Integer.parseInt(argArray[1]);
             
+            // Print error if k # of clusters is set to 0.
+            if (clusters == 0 || clusters > VectorMap.size()) {
+                System.err.println("please input a valid k (# of clusters). Miniumum valid k = 1, Maximum valid k = every unique word in document");
+                System.err.println("ex: -f\"filename\" -k 5,3");
+                System.exit(1);
+            }
+            // Print error if iterations is set to 0
+            if (iterations == 0) {
+                System.err.println("please input a valid iters (# of iterations over k-means). Minimum valid iters = 1");
+                System.err.println("ex: -f\"filename\" -k 5,3");
+                System.exit(1);
+            }
+            
             List<String> keysAsArray = new ArrayList<>(allWords.keySet());
             Random r = new Random();
             
@@ -552,6 +565,48 @@ public class Main {
                         }
                         break;
                     }
+                }
+            }
+            // if k-means must be calculated ITER (iterations) times.
+            // in this case must calculate centroid's and recalculate clusters until have iterated over the cluster iter times.
+            if (iterations > 1) {
+                int iterationCount = 1;
+                // while we still have to re-calculate k-means
+                Map<String, Map<String, Integer>> centroidVectorMap = new HashMap<>();
+                while (iterationCount < iterations) {
+                    // First we must calculate the new centroids of each cluster. These will be the new clustering points
+                    // To do this for loop over the "Clusters" Map
+                    // To generate the name for each Cluster, calculate cluster number on with int clusterNumber
+                    int clusterNumber = 1;
+                    // For each cluster
+                    for (Map.Entry<String, List<String>> entry: Clusters.entrySet()) {
+                        // New Centroid
+                        String centroidName = "Centroid: " + Integer.toString(clusterNumber); 
+                        Map<String, Integer> centroidMap = new HashMap<>();
+                        
+                        // Put every element of current centroid (entry.getKey())) into the new centroid
+                            // Two cases
+                            // 1. If current centroid is an actual word.. (which only happens on iterationCount == 1
+                            if (iterationCount == 1) {
+                                VectorMap.get(entry.getKey()).putAll(centroidMap);
+                            }
+                            // 2. If current centroid is a centroid and not a word.
+                            else {
+                                
+                            }
+                        // Add all other elements to current centroid
+                        
+                        // Divide all elements by "r"
+                        
+                        // Add new centroid to temp map
+                        
+                        // increase clusterNumber
+                        clusterNumber ++;
+                    }
+                    // After all centroids have been added to tempMap
+                    // Set Clusters = tempMap
+                    // Then calculate the new clustered words based on new centroids.
+                    iterationCount ++;
                 }
             }
             System.out.println(Clusters);
