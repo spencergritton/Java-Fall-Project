@@ -206,6 +206,14 @@ public class Main {
         options.addOption(mOption);
         
         String mOpt = "cosine";
+        
+        Option kOption = Option.builder("k")
+            .numberOfArgs(1)
+            .type(String.class)
+            .desc("Print k clusters using iter, iterations... -k k,iter")
+            .required(false)
+            .build();
+        options.addOption(kOption);
 
         CommandLineParser parser = new DefaultParser();
 
@@ -284,6 +292,7 @@ public class Main {
         // ^^ list is "sentencesList"
         // Also stem each word and if the word is a stop word it is removed
         List<List<String>> sentencesList = new ArrayList<>();
+        Map<String, Integer> allWords = new HashMap<>();
         PorterStemmer stemmer = new PorterStemmer();
        
         
@@ -305,6 +314,9 @@ public class Main {
                 // not a stop word so stem it and add to list
                 word = stemmer.stem(word);
                 sentenceInnerList.add(word);
+                if (!allWords.containsKey(word)) {
+                    allWords.put(word,0);
+                }
             }
             sentencesList.add(sentenceInnerList);
         }
@@ -477,5 +489,42 @@ public class Main {
             }
         }
         
+        
+        // If there is an option k then then must print the k clusters of vector space using iter iterations
+        // -k k,iter
+        if (cmd.hasOption("k")) {
+            
+            String kInput = cmd.getOptionValue("k");
+            String[] argArray = kInput.split(",");
+
+            // clusters is how many clusters
+            // iterations is how many iterations of k-means to do
+            int clusters = Integer.parseInt(argArray[0]);
+            int iterations = Integer.parseInt(argArray[1]);
+            
+            List<String> keysAsArray = new ArrayList<>(allWords.keySet());
+            Random r = new Random();
+            
+            // Creates map of clusters and their clustered words.
+            // {dog: [cat,cow,frog], mouse: [horse, person] }
+            Map<String, List<String>> Clusters = new HashMap<>();
+            
+            // Generates "k" clusters of random words
+            int i = 0;
+            while (i < clusters) {
+                int random = r.nextInt(keysAsArray.size());
+                // if the item is not yet a cluster point add it
+                if (!Clusters.containsKey(keysAsArray.get(random))) {
+                    List<String> tempList = new ArrayList<>();
+                    Clusters.put(keysAsArray.get(random), tempList);
+                    i++;
+                }
+            }
+            
+            // Now cluster words have been chosen at random and we can begin to find which words go in which cluster
+            // To find this we have to find the euclidean distance of every word to every cluster and put it in the 
+            // cluster with the euclidean distance closest to 1.
+  
+        }  
     }
 }
