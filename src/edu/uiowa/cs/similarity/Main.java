@@ -77,6 +77,40 @@ public class Main {
         return (Numerator/Denominator);
     }
     
+        // ES(a, b) = ( (a1-b1)^2 + (a2-b2)^2 + (a3-b3)^2 )^(1/2)
+    public static double EuclideanSimilarity(String word1, String word2, Map <String, Integer> word1Map, Map <String, Integer> word2Map) {
+        Double returnValue = 0.0;
+        List<String> seenWords = new ArrayList<>();
+        
+        // for each item in word1 map, if the item is not word one
+        // Then take (a1-b1) and add it to the return value
+        // The problem with this is we also have to include when the word isn't in word1Map but IS in word2Map
+        // so for each word we find in map1 append to a list and then when iterating through map 2 only include words 
+        // Not in the list of words already seen.
+        for (Map.Entry<String, Integer> entry : word1Map.entrySet()) {
+            seenWords.add(entry.getKey());
+            
+            if (word2Map.containsKey(entry.getKey())) {
+                returnValue += Math.pow(entry.getValue()-word2Map.get(entry.getKey()), 2);
+            }
+            else {
+                returnValue += Math.pow(entry.getValue(), 2);
+            }
+        }
+        
+        for (Map.Entry<String, Integer> entry : word2Map.entrySet()) {
+            // only add extra words if they aren't in word1Map but ARE in word2Map
+            if (!seenWords.contains(entry.getKey())) {
+                seenWords.add(entry.getKey());   
+                
+                // only words in here can be the ones not already added so word1Map vector of the word must be 0
+                returnValue += Math.pow(entry.getValue(), 2);
+            }
+        }
+        returnValue = Math.pow(returnValue, 0.5);
+        returnValue = -returnValue;
+        return returnValue;
+    }
     
     // From the example in the PDF of Euclidean Similarity Normalized
     /*
