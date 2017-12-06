@@ -18,11 +18,11 @@ public class Main {
 
     
     // PART 2, combine two hash maps
-    public static Map<String, Integer> mapCombiner(Map<String, Integer> map1, Map<String, Integer> map2) {
+    public static Map<String, Double> mapCombiner(Map<String, Double> map1, Map<String, Double> map2) {
         
-        Map<String, Integer> tempMap = map1;
+        Map<String, Double> tempMap = map1;
         // for each entry in map 2
-        for (Map.Entry<String, Integer> entry : map2.entrySet()) {
+        for (Map.Entry<String, Double> entry : map2.entrySet()) {
            
             // if entry not in map one then add it
             if (!tempMap.containsKey(entry.getKey())) {
@@ -31,16 +31,16 @@ public class Main {
             
             // otherwise it is in the map and must add the values together
             else {
-                int valueOfWord = tempMap.get(entry.getKey()) + entry.getValue();
+                Double valueOfWord = tempMap.get(entry.getKey()) + entry.getValue();
                 tempMap.put(entry.getKey(), valueOfWord);
             }
         }
         return tempMap;
     }
     
-    public static Double CosineSimilarity(String word1, String word2, Map <String, Integer> word1Map, Map <String, Integer> word2Map) {
+    public static Double CosineSimilarity(String word1, String word2, Map <String, Double> word1Map, Map <String, Double> word2Map) {
         // Calculate Numerator which is the summation of the multiplication of  count of each word that is in the vector of each word 
-        int Numerator = 0;
+        Double Numerator = 0.0;
         
         // Now denometer must be found. which is the (summation of each word count^2 * other summation)^1/2
         
@@ -50,7 +50,7 @@ public class Main {
         Double word2SummationSquared = 0.0;
         
         // for each value in word1Map add the square of that value to it's summation
-        for (Map.Entry<String, Integer> entry : word1Map.entrySet()) {
+        for (Map.Entry<String, Double> entry : word1Map.entrySet()) {
             word1SummationSquared = word1SummationSquared + Math.pow(entry.getValue(), 2);
             // While iterating also calculate Numerator to save time
             // if word2Map contains this key that is in word one map
@@ -60,7 +60,7 @@ public class Main {
             }
         }
         // for each value in word2Map add the square of that value to it's summation
-        for (Map.Entry<String, Integer> entry : word2Map.entrySet()) {
+        for (Map.Entry<String, Double> entry : word2Map.entrySet()) {
             word2SummationSquared = word2SummationSquared + Math.pow(entry.getValue(), 2);
         }
         
@@ -78,7 +78,7 @@ public class Main {
     }
     
         // ES(a, b) = ( (a1-b1)^2 + (a2-b2)^2 + (a3-b3)^2 )^(1/2)
-    public static double EuclideanSimilarity(String word1, String word2, Map <String, Integer> word1Map, Map <String, Integer> word2Map) {
+    public static double EuclideanSimilarity(String word1, String word2, Map <String, Double> word1Map, Map <String, Double> word2Map) {
         Double returnValue = 0.0;
         List<String> seenWords = new ArrayList<>();
         
@@ -87,7 +87,7 @@ public class Main {
         // The problem with this is we also have to include when the word isn't in word1Map but IS in word2Map
         // so for each word we find in map1 append to a list and then when iterating through map 2 only include words 
         // Not in the list of words already seen.
-        for (Map.Entry<String, Integer> entry : word1Map.entrySet()) {
+        for (Map.Entry<String, Double> entry : word1Map.entrySet()) {
             seenWords.add(entry.getKey());
             
             if (word2Map.containsKey(entry.getKey())) {
@@ -98,7 +98,7 @@ public class Main {
             }
         }
         
-        for (Map.Entry<String, Integer> entry : word2Map.entrySet()) {
+        for (Map.Entry<String, Double> entry : word2Map.entrySet()) {
             // only add extra words if they aren't in word1Map but ARE in word2Map
             if (!seenWords.contains(entry.getKey())) {
                 seenWords.add(entry.getKey());   
@@ -126,17 +126,17 @@ public class Main {
     = -1.278613166
 */
     
-    public static double EuclideanSimilarityNormalized(String word1, String word2, Map <String, Integer> word1Map, Map <String, Integer> word2Map) {
+    public static double EuclideanSimilarityNormalized(String word1, String word2, Map <String, Double> word1Map, Map <String, Double> word2Map) {
         // First must find the normalization of word1Map vector and word2Map vector.
         // Do this by looping through each vector, adding up their counts^2 then squaring the entire number.
         Double word1Normalization = 0.0;
         Double word2Normalization = 0.0;
         
-        for (Map.Entry<String, Integer> entry : word1Map.entrySet()) {
+        for (Map.Entry<String, Double> entry : word1Map.entrySet()) {
             word1Normalization += Math.pow(entry.getValue(), 2);
         }
         word1Normalization = Math.pow(word1Normalization, 0.5);
-        for (Map.Entry<String, Integer> entry : word2Map.entrySet()) {
+        for (Map.Entry<String, Double> entry : word2Map.entrySet()) {
             word2Normalization += Math.pow(entry.getValue(), 2);
         }
         word2Normalization = Math.pow(word2Normalization, 0.5);
@@ -152,7 +152,7 @@ public class Main {
         // The problem with this is we also have to include when the word isn't in word1Map but IS in word2Map
         // so for each word we find in map1 append to a list and then when iterating through map 2 only include words 
         // Not in the list of words already seen.
-        for (Map.Entry<String, Integer> entry : word1Map.entrySet()) {
+        for (Map.Entry<String, Double> entry : word1Map.entrySet()) {
             seenWords.add(entry.getKey());
             
             if (word2Map.containsKey(entry.getKey())) {
@@ -163,7 +163,7 @@ public class Main {
             }
         }
         
-        for (Map.Entry<String, Integer> entry : word2Map.entrySet()) {
+        for (Map.Entry<String, Double> entry : word2Map.entrySet()) {
             // only add extra words if they aren't in word1Map but ARE in word2Map
             if (!seenWords.contains(entry.getKey())) {
                 seenWords.add(entry.getKey());   
@@ -292,7 +292,7 @@ public class Main {
         // ^^ list is "sentencesList"
         // Also stem each word and if the word is a stop word it is removed
         List<List<String>> sentencesList = new ArrayList<>();
-        Map<String, Integer> allWords = new HashMap<>();
+        Map<String, Double> allWords = new HashMap<>();
         PorterStemmer stemmer = new PorterStemmer();
        
         
@@ -315,7 +315,7 @@ public class Main {
                 word = stemmer.stem(word);
                 sentenceInnerList.add(word);
                 if (!allWords.containsKey(word)) {
-                    allWords.put(word,0);
+                    allWords.put(word,0.0);
                 }
             }
             sentencesList.add(sentenceInnerList);
@@ -360,13 +360,13 @@ public class Main {
         // Dictionary containing keys (words) and values of those keys being other dictionaries
         // The value dictionary will contain all words in a sentence with said key and how many times they occur together
         // {"bill: {"is" : 3, "the" : 1, "illest": 2}, "man" : {"stuff" : 1} }
-        Map<String, Map<String, Integer>> VectorMap = new HashMap<>();
+        Map<String, Map<String, Double>> VectorMap = new HashMap<>();
         // For each sentence in the sentences list
         for (List l: sentencesList) {
             // For each word in the sentence
             for (Object s: l) {
                 // Create a map of all words in the sentence
-                Map<String, Integer> tempMap = new HashMap<>();
+                Map<String, Double> tempMap = new HashMap<>();
                 // for each word in the sentence lookig at
                 for (Object ss: l) {
                     // if it's the same as the word of the map looking at don't add it
@@ -376,10 +376,10 @@ public class Main {
                     // otherwise add to the tempMap
                     // if item not in temp map add it
                     if (!tempMap.containsKey( (String) ss)) {
-                        tempMap.put((String) ss, 1);
+                        tempMap.put((String) ss, 1.0);
                         // if item in temp map add it
                     } else {
-                        int value = tempMap.get( (String) ss) + 1;
+                        Double value = tempMap.get( (String) ss) + 1;
                         tempMap.put((String) ss, value);
                     }
                 }
@@ -403,12 +403,12 @@ public class Main {
         // Command line option v
         if (cmd.hasOption("v")) {
             // For each entry in VectorMap
-            for (Map.Entry<String, Map<String, Integer>> entry : VectorMap.entrySet()) {
+            for (Map.Entry<String, Map<String, Double>> entry : VectorMap.entrySet()) {
                 System.out.println("Entry Word " + entry.getKey());
                 // for each entry in each entry
                 String built = "[";
                 boolean tracker = false;
-                for (Map.Entry<String, Integer> innerEntry : entry.getValue().entrySet()) {
+                for (Map.Entry<String, Double> innerEntry : entry.getValue().entrySet()) {
                     built += innerEntry.getKey() + "=" + innerEntry.getValue();
                     built += ", ";
                     tracker = true;
@@ -431,7 +431,7 @@ public class Main {
             // tWord is the word we are finding words most similar to
             // tInt is how many similar words we are finding
             tWord = argArray[0];
-            int tInt = Integer.parseInt(argArray[1]);
+            Double tInt = Double.parseDouble(argArray[1]);
             
             // if tWord not in VectorMap return error
             if (VectorMap.get(tWord) == null) {
@@ -443,10 +443,10 @@ public class Main {
                 Map<String, Double> SimMap = new HashMap<>();
 
                 // The Vector of tWord
-                Map <String, Integer> tWordMap = VectorMap.get(tWord);
+                Map <String, Double> tWordMap = VectorMap.get(tWord);
 
                 // For each word vector entry calculate it's cosine similarity to tWord vector
-                for (Map.Entry<String, Map<String, Integer>> entry : VectorMap.entrySet()) {
+                for (Map.Entry<String, Map<String, Double>> entry : VectorMap.entrySet()) {
 
                     if (entry.getKey().equals(tWord)) {
                         continue;
@@ -540,7 +540,7 @@ public class Main {
             // cluster with the euclidean distance closest to 1.
             
             // For each unique word in the text
-            for (Map.Entry<String, Map<String, Integer>> entry : VectorMap.entrySet()) { 
+            for (Map.Entry<String, Map<String, Double>> entry : VectorMap.entrySet()) { 
             // if the word is not a cluster point
                 if (!Clusters.containsKey(entry.getKey())) {
             // Calculate the euclidean distance between the point and every cluster
@@ -572,7 +572,7 @@ public class Main {
             if (iterations > 1) {
                 int iterationCount = 1;
                 // while we still have to re-calculate k-means
-                Map<String, Map<String, Integer>> centroidVectorMap = new HashMap<>();
+                Map<String, Map<String, Double>> centroidVectorMap = new HashMap<>();
                 while (iterationCount < iterations) {
                     // First we must calculate the new centroids of each cluster. These will be the new clustering points
                     // To do this for loop over the "Clusters" Map
@@ -582,13 +582,13 @@ public class Main {
                     for (Map.Entry<String, List<String>> entry: Clusters.entrySet()) {
                         // New Centroid
                         String centroidName = "Centroid: " + Integer.toString(clusterNumber); 
-                        Map<String, Integer> centroidMap = new HashMap<>();
+                        Map<String, Double> centroidValues = new HashMap<>();
                         
                         // Put every element of current centroid (entry.getKey())) into the new centroid
                             // Two cases
                             // 1. If current centroid is an actual word.. (which only happens on iterationCount == 1
                             if (iterationCount == 1) {
-                                VectorMap.get(entry.getKey()).putAll(centroidMap);
+                                VectorMap.get(entry.getKey()).putAll(centroidValues);
                             }
                             // 2. If current centroid is a centroid and not a word.
                             else {
