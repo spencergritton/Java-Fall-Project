@@ -1,9 +1,10 @@
 What is the status of your project?
+We have finished implementing methods we believe work correctly through part 3, along with the requested submission for a portion of part 4. We do have some questions that still need addressed as to what exactly our outputs must entail because we are unsure if part 3 requires the stemming previously used. We plan to get these addressed as soon as possible so that we can continue forward with the project.
 
 
-
-What has each team done to ensure the success of the team?
-
+What has each team member done to ensure the success of the team?
+Since the progres report we have been really working on meeting in person to work on and talk through each part of the assignment. This has been done through increased communication. We tackle different pieces of the code and see how we can improve each others based on how the other is coding their part.
 
 
 What can each team member do going forward to ensure the success of the team?
+Each team member can continue to utilize effective communication and spend free time looking through the assignment in order to stay on track. 

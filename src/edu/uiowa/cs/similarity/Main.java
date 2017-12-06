@@ -38,86 +38,110 @@ public class Main {
         return tempMap;
     }
     
-    //Start Brady Code
-    //Right now word=man and map2 = all the entries
-    /*public static double cosineSimilarity(String word1, String word2) {
-        double dotProduct = 0;
-        double normVect1 = 0;
-        double normVect2 = 0;
+    public static Double CosineSimilarity(String word1, String word2, Map <String, Integer> word1Map, Map <String, Integer> word2Map) {
+        // Calculate Numerator which is the summation of the multiplication of  count of each word that is in the vector of each word 
+        int Numerator = 0;
         
-        int count = 0;
-        System.out.println(word1);
-        System.out.println(word2);
-        //need to check 
+        // Now denometer must be found. which is the (summation of each word count^2 * other summation)^1/2
         
-        for (Map.Entry<String, Integer> entry : map2.entrySet()) {
-            //System.out.println(entry);
-            //System.out.println(entry.getKey());
-            if(entry.getKey().contains(word1)) {
-                count += 1;
+        // first need to find the summation for each word's words squared.
+        // to do this use word1Map and word2Map args.
+        Double word1SummationSquared = 0.0;
+        Double word2SummationSquared = 0.0;
+        
+        // for each value in word1Map add the square of that value to it's summation
+        for (Map.Entry<String, Integer> entry : word1Map.entrySet()) {
+            word1SummationSquared = word1SummationSquared + Math.pow(entry.getValue(), 2);
+            // While iterating also calculate Numerator to save time
+            // if word2Map contains this key that is in word one map
+            if (word2Map.containsKey(entry.getKey())) {
+                // Then add the multiplication of the number of times each occur to the Numerator summation.
+                Numerator = Numerator + (entry.getValue()*word2Map.get(entry.getKey()));
             }
-            if (count >= 1) {
-                System.out.println(count);
-            }
-            System.out.println(count);
         }
-        return 0;
-    }*/
-  
-    //Part 3 Cosine Similarity Method
-    public static Map<String, Integer> cosineTermMapHelper(String[] Terms) {
-        Map<String, Integer> cosineTermMap = new HashMap<>();
-        for (String term : Terms) {
-            Integer n = cosineTermMap.get(term);
-            n = (n == null) ? 1 : ++n;
-            cosineTermMap.put(term, n);
+        // for each value in word2Map add the square of that value to it's summation
+        for (Map.Entry<String, Integer> entry : word2Map.entrySet()) {
+            word2SummationSquared = word2SummationSquared + Math.pow(entry.getValue(), 2);
         }
-        return cosineTermMap;
+        
+        Double Denominator = word1SummationSquared*word2SummationSquared;
+        Denominator = Math.pow(Denominator, .5);
+        
+        if (Denominator.equals(0.0)) {
+            return 0.0;
+        }
+        if (Numerator == 0) {
+            return 0.0;
+        }
+
+        return (Numerator/Denominator);
     }
     
     
-    //word1 is "dog" word2 is each other word from the entry vector
-    public static double cosineSim (String word1, String word2) {
-        Map<String, Integer> u = cosineTermMapHelper(word1.split("\\W+"));
-        Map<String, Integer> v = cosineTermMapHelper(word2.split("\\W+"));
-        
-        //System.out.println(word1);
-        //System.out.println(word2);
-        
-        //System.out.println(u);
-        //System.out.println(v); 
-        
-        //System.out.println(u.keySet());
-        //System.out.println(v.keySet());
-        
-        HashSet<String> same = new HashSet<>(u.keySet());
-        same.retainAll(v.keySet());
-        
-        double dotProduct = 0, magU =0, magV = 0;
-        
-        for(String item : same) {
-            //System.out.println(item);
-            dotProduct += u.get(item) * v.get(item);
-            //System.out.println(dotProduct);
-        } 
-        
-        for (String x : u.keySet()) {
-            //System.out.println(x);
-            magU += Math.pow(u.get(x), 2);
-            //System.out.println(magU);
-        }
-        
-        for (String y : v.keySet()) {
-            //System.out.println(y);
-            magV += Math.pow(v.get(y), 2);
-            //System.out.println(magV);
-        }
-        
-        //System.out.println(dotProduct / Math.sqrt(magU * magV));
-        return dotProduct / Math.sqrt(magU * magV);
-    }
+    // From the example in the PDF of Euclidean Similarity Normalized
+    /*
+    D% = (1,4,1,0,0,0) 
+    D' = (3,0,0,1,1,2) 
+    (1+16+1)^1/2
+    18^1/2 = 4.242640687
+
+    (9+1+1+4)^1/2
+    15^(1/2) = 3.872983346
+
+    -((1/4.242640687-3/3.872983346)^2+(4/4.242640687-0)^2+(1/4.242640687-0)^2+(0-1/3.872983346)^2+(0-1/3.872983346)^2+(0-2/3.872983346)^2)^(1/2) 
+    = -1.278613166
+*/
     
-    //End Brady Code
+    public static double EuclideanSimilarityNormalized(String word1, String word2, Map <String, Integer> word1Map, Map <String, Integer> word2Map) {
+        // First must find the normalization of word1Map vector and word2Map vector.
+        // Do this by looping through each vector, adding up their counts^2 then squaring the entire number.
+        Double word1Normalization = 0.0;
+        Double word2Normalization = 0.0;
+        
+        for (Map.Entry<String, Integer> entry : word1Map.entrySet()) {
+            word1Normalization += Math.pow(entry.getValue(), 2);
+        }
+        word1Normalization = Math.pow(word1Normalization, 0.5);
+        for (Map.Entry<String, Integer> entry : word2Map.entrySet()) {
+            word2Normalization += Math.pow(entry.getValue(), 2);
+        }
+        word2Normalization = Math.pow(word2Normalization, 0.5);
+        
+        // Now that normalizations are calculated proceed more or less exactly as EuclideanSimilarity EXCEPT
+        // now it looks like ES(a,b) = ( (a1/anorm - b1/bnorm)^2 + (a2/anorm - b2/bnorm)^2 )^(1/2)
+        
+        Double returnValue = 0.0;
+        List<String> seenWords = new ArrayList<>();
+        
+        // for each item in word1 map, if the item is not word one
+        // Then take (a1-b1) and add it to the return value
+        // The problem with this is we also have to include when the word isn't in word1Map but IS in word2Map
+        // so for each word we find in map1 append to a list and then when iterating through map 2 only include words 
+        // Not in the list of words already seen.
+        for (Map.Entry<String, Integer> entry : word1Map.entrySet()) {
+            seenWords.add(entry.getKey());
+            
+            if (word2Map.containsKey(entry.getKey())) {
+                returnValue += Math.pow((entry.getValue()/word1Normalization)-(word2Map.get(entry.getKey())/word2Normalization), 2);
+            }
+            else {
+                returnValue += Math.pow((entry.getValue()/word1Normalization), 2);
+            }
+        }
+        
+        for (Map.Entry<String, Integer> entry : word2Map.entrySet()) {
+            // only add extra words if they aren't in word1Map but ARE in word2Map
+            if (!seenWords.contains(entry.getKey())) {
+                seenWords.add(entry.getKey());   
+                
+                // only words in here can be the ones not already added so word1Map vector of the word must be 0
+                returnValue += Math.pow((entry.getValue()/word2Normalization), 2);
+            }
+        }
+        returnValue = Math.pow(returnValue, 0.5);
+        returnValue = -returnValue;
+        return returnValue;
+    }
     
     public static void main(String[] args) throws IOException {
         
@@ -130,15 +154,24 @@ public class Main {
         
         // DON'T PUT A SPACE BETWEEN ARGUEMENTS, CODE EXAMPLE DOES NOT INCLUDE SPACE BETWEEN ARGS
         Option tOption = Option.builder("t")
-                         .longOpt("word,number")
-                         .numberOfArgs(1)
-                         .required(true)
-                         .type(String.class)
-                         .desc("")
-                         .build();
-
-        
+            .longOpt("word,number")
+            .numberOfArgs(1)
+            .type(String.class)
+            .desc("Print top J similarities to input word -t word,J")
+            .required(false)
+            .build();
         options.addOption(tOption);
+        
+        Option mOption = Option.builder("m")
+            .longOpt("-m type of similarity measure")
+            .numberOfArgs(1)
+            .type(String.class)
+            .desc("Decide what similarity measure top-j uses")
+            .required(false)
+            .build();
+        options.addOption(mOption);
+        
+        String mOpt = "cosine";
 
         CommandLineParser parser = new DefaultParser();
 
@@ -156,20 +189,6 @@ public class Main {
 			System.err.println("file does not exist "+filename);
 			System.exit(1);
 		}
-                
-        String tWord = cmd.getOptionValue("t");
-        String[] argArray = tWord.split(",");
-        
-        // tWord is the word we are finding words most similar to
-        // tInt is how many similar words we are finding
-        tWord = argArray[0];
-        int tInt = Integer.parseInt(argArray[1]);
-
-
-        if (cmd.getOptionValue("t") == null) {
-            System.err.println("t options don't exist");
-            System.exit(1);
-        }    
 
         if (cmd.hasOption("h")) {
             HelpFormatter helpf = new HelpFormatter();
@@ -256,6 +275,20 @@ public class Main {
             sentencesList.add(sentenceInnerList);
         }
         
+        if (cmd.hasOption("m")) {
+            String mWord = cmd.getOptionValue("m");
+            if (mWord.equals("euc")) {
+                mOpt = "euc";
+            }
+            else if (mWord.equals("eucnorm")) {
+                mOpt = "eucnorm";
+            }
+            else if (!mWord.equals("cosine")) {
+                System.err.println("please input a valid similarity measure: cosine, euc, or eucnorm");
+                System.exit(1);
+            }
+        }
+        
         // Adding command line option s for printing lines
         if (cmd.hasOption("s")) {
             String built = "[ ";
@@ -328,11 +361,15 @@ public class Main {
                 System.out.println("Entry Word " + entry.getKey());
                 // for each entry in each entry
                 String built = "[";
+                boolean tracker = false;
                 for (Map.Entry<String, Integer> innerEntry : entry.getValue().entrySet()) {
                     built += innerEntry.getKey() + "=" + innerEntry.getValue();
                     built += ", ";
+                    tracker = true;
                 }
-                built = built.substring(0, built.length()-2);
+                if (tracker == true) {
+                    built = built.substring(0, built.length()-2);
+                }
                 built += "]";
                 System.out.println(built);
                 System.out.println("");
@@ -342,6 +379,14 @@ public class Main {
         // If there is an option t then then must print the tInt most similar words to tWord.
         if (cmd.hasOption("t")) {
             
+            String tWord = cmd.getOptionValue("t");
+            String[] argArray = tWord.split(",");
+
+            // tWord is the word we are finding words most similar to
+            // tInt is how many similar words we are finding
+            tWord = argArray[0];
+            int tInt = Integer.parseInt(argArray[1]);
+            
             // if tWord not in VectorMap return error
             if (VectorMap.get(tWord) == null) {
                 System.out.println("Cannot compute top-J similarity to " + tWord);
@@ -349,7 +394,7 @@ public class Main {
             } else {
             
                 // Create a Map/Dict of all words and their cosine similarity to tWord
-                Map<String, Double> cosSimMap = new HashMap<>();
+                Map<String, Double> SimMap = new HashMap<>();
 
                 // The Vector of tWord
                 Map <String, Integer> tWordMap = VectorMap.get(tWord);
@@ -357,34 +402,36 @@ public class Main {
                 // For each word vector entry calculate it's cosine similarity to tWord vector
                 for (Map.Entry<String, Map<String, Integer>> entry : VectorMap.entrySet()) {
 
-                    // This part with random is just to test the sorting algorithmn
-                    Random r = new Random(); 
-                    Double d = r.nextDouble();
-
-                    Double cosineSim = d;
-                    // cosineSim = COSINE SIMILARITY FUNCTION GOES HERE
-                    // Should output cosine similarity between tWord and entry.getValue() (gives map of entry.getKey() aka comparison word
+                    if (entry.getKey().equals(tWord)) {
+                        continue;
+                    } else {
                     
                     //new code
                     //tword = man and entry.getKey() gets every word from the text in order to compare
-                    cosineSim = cosineSim(tWord, entry.getKey());
+                    Double Sim = 0.0;
                     
-                    cosSimMap.put(entry.getKey(), cosineSim);
-                   
+                    if (mOpt.equals("euc")) {
+                        Sim = EuclideanSimilarity(tWord, entry.getKey(), tWordMap, entry.getValue());
+                    }
+                    else if (mOpt.equals("eucnorm")) {
+                        Sim = EuclideanSimilarityNormalized(tWord, entry.getKey(), tWordMap, entry.getValue());
+                    }
+                    else {
+                        Sim = CosineSimilarity(tWord, entry.getKey(), tWordMap, entry.getValue());
+                    }
+                    
+                    SimMap.put(entry.getKey(), Sim);
+                    }
                 }
                 // Sort cosSimMap to make most similar vectors appear at the start of the map
-                cosSimMap = mapValuesSorted(cosSimMap);
+                SimMap = mapValuesSorted(SimMap);
 
-                // Make the return map not include the 0 index (as that is the most similar element)
-                // Also make it only return "tInt" amount of elements.
-                cosSimMap.remove(tWord);
-                
                 // if the map is bigger than desired size then add its elements to a temp map until it equals that size
                 // then return the tempMap, else return the cosSimMap.
-                if (cosSimMap.size() > tInt) {
+                if (SimMap.size() > tInt) {
                     Map<String, Double> tempMap = new HashMap<>();
                     
-                    for (Map.Entry<String, Double> entry : cosSimMap.entrySet()) {
+                    for (Map.Entry<String, Double> entry : SimMap.entrySet()) {
                         if (tempMap.size()!= tInt) {
                             tempMap.put(entry.getKey(), entry.getValue());
                         }
@@ -392,9 +439,10 @@ public class Main {
                     tempMap = mapValuesSorted(tempMap);
                     System.out.println(tempMap);
                 } else {
-                    System.out.println(cosSimMap);
+                    System.out.println(SimMap);
                 }
             }
         }
+        
     }
 }
