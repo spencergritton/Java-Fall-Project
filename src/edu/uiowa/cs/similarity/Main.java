@@ -77,7 +77,7 @@ public class Main {
         return (Numerator/Denominator);
     }
     
-    // ES(a, b) = ( (a1-b1)^2 + (a2-b2)^2 + (a3-b3)^2 )^(1/2)
+        // ES(a, b) = ( (a1-b1)^2 + (a2-b2)^2 + (a3-b3)^2 )^(1/2)
     public static double EuclideanSimilarity(String word1, String word2, Map <String, Integer> word1Map, Map <String, Integer> word2Map) {
         Double returnValue = 0.0;
         List<String> seenWords = new ArrayList<>();
@@ -452,8 +452,9 @@ public class Main {
                         continue;
                     } else {
                     
+                    //new code
+                    //tword = man and entry.getKey() gets every word from the text in order to compare
                     Double Sim = 0.0;
-                    // Should output similarity between tWord and entry.getValue() (gives map of entry.getKey() aka comparison word
                     
                     if (mOpt.equals("euc")) {
                         Sim = EuclideanSimilarity(tWord, entry.getKey(), tWordMap, entry.getValue());
