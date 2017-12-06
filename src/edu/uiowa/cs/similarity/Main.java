@@ -525,7 +525,20 @@ public class Main {
             // Now cluster words have been chosen at random and we can begin to find which words go in which cluster
             // To find this we have to find the euclidean distance of every word to every cluster and put it in the 
             // cluster with the euclidean distance closest to 1.
-  
+            
+            // For each unique word in the text
+            for (Map.Entry<String, Map<String, Integer>> entry : VectorMap.entrySet()) { 
+            // if the word is not a cluster point
+                if (!Clusters.containsKey(entry.getKey())) {
+            // Calculate the euclidean distance between the point and every cluster
+                    // Store the cluster String and it's euclidean distance to the "point" entry.getKey()
+                    Map<String, Double> tempCluster = new HashMap<>();
+                    for (Map.Entry<String, List<String>> innerEntry : Clusters.entrySet()) {
+                        
+                    }
+            // Add the point to the cluster of the most similar word
+                }
+            }
         }  
     }
 }
