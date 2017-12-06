@@ -533,12 +533,28 @@ public class Main {
             // Calculate the euclidean distance between the point and every cluster
                     // Store the cluster String and it's euclidean distance to the "point" entry.getKey()
                     Map<String, Double> tempCluster = new HashMap<>();
+                    // For each Cluster point
                     for (Map.Entry<String, List<String>> innerEntry : Clusters.entrySet()) {
-                        
+                        // Put the euclidean similarity of the cluster into the tempCluster map for later comparisons
+                        tempCluster.put(innerEntry.getKey(), EuclideanSimilarity(entry.getKey(), innerEntry.getKey(), entry.getValue(), VectorMap.get(innerEntry.getKey())));
                     }
             // Add the point to the cluster of the most similar word
+                    tempCluster = mapValuesSorted(tempCluster);
+                    boolean firstElement = true;
+                    for (Map.Entry<String, Double> innerEntry : tempCluster.entrySet()) {
+                        if (firstElement) {
+                            // innerEntry.getKey() is the cluster most similar to entry.getKey()
+                            // So add entry.getKey() to innerEntry.getKey() 's cluster
+                            List<String> tempList = Clusters.get(innerEntry.getKey());
+                            tempList.add(entry.getKey());
+                            Clusters.replace(innerEntry.getKey(), tempList);
+                            firstElement = false;
+                        }
+                        break;
+                    }
                 }
             }
-        }  
+            System.out.println(Clusters);
+        }
     }
 }
