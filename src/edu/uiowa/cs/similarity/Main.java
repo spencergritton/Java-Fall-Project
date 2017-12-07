@@ -265,6 +265,14 @@ public class Main {
             .required(false)
             .build();
         options.addOption(kOption);
+        
+        Option jOption = Option.builder("j")
+            .numberOfArgs(1)
+            .type(String.class)
+            .desc("Print top-j closest clusters to k clusters, iterating iter times.. -j k,iter,j")
+            .required(false)
+            .build();
+        options.addOption(jOption);
 
         CommandLineParser parser = new DefaultParser();
 
@@ -544,26 +552,48 @@ public class Main {
         
         // If there is an option k then then must print the k clusters of vector space using iter iterations
         // -k k,iter
-        if (cmd.hasOption("k")) {
+        if (cmd.hasOption("k") || cmd.hasOption("j")) {
             
-            String kInput = cmd.getOptionValue("k");
-            String[] argArray = kInput.split(",");
+            int clusters = 0;
+            int iterations = 0;
+            int topJ = 0;
+            
+            if (cmd.hasOption("k")) {
+                String kInput = cmd.getOptionValue("k");
+                String[] argArray = kInput.split(",");
 
-            // clusters is how many clusters
-            // iterations is how many iterations of k-means to do
-            int clusters = Integer.parseInt(argArray[0]);
-            int iterations = Integer.parseInt(argArray[1]);
+                // clusters is how many clusters
+                // iterations is how many iterations of k-means to do
+                clusters = Integer.parseInt(argArray[0]);
+                iterations = Integer.parseInt(argArray[1]);
+            }
+            else {
+                String jInput = cmd.getOptionValue("j");
+                String[] argArray = jInput.split(",");
+                // clusters is how many clusters
+                // iterations is how many iterations of k-means to do
+                clusters = Integer.parseInt(argArray[0]);
+                iterations = Integer.parseInt(argArray[1]);
+                topJ = Integer.parseInt(argArray[2]);
+            }
             
             // Print error if k # of clusters is set to 0.
             if (clusters == 0 || clusters > VectorMap.size()) {
                 System.err.println("please input a valid k (# of clusters). Miniumum valid k = 1, Maximum valid k = every unique word in document");
-                System.err.println("ex: -f\"filename\" -k 5,3");
+                System.err.println("ex: -f\"filename\" -k 5,3 .. or -j 2,3,2");
                 System.exit(1);
             }
             // Print error if iterations is set to 0
             if (iterations == 0) {
                 System.err.println("please input a valid iters (# of iterations over k-means). Minimum valid iters = 1");
-                System.err.println("ex: -f\"filename\" -k 5,3");
+                System.err.println("ex: -f\"filename\" -k 5,3 .. or -j 2,3,2");
+                System.exit(1);
+            }
+            
+            // if cmd has option j and j is set to 0 print error
+            if (cmd.hasOption("j") && topJ == 0) {
+                System.err.println("please input a valid j value > 0");
+                System.err.println("ex: -f\"filename\" -k 5,3 .. or -j 2,3,2");
                 System.exit(1);
             }
             
@@ -672,7 +702,7 @@ public class Main {
                     clusteringPair = closestClustering(VectorMap, Clusters, true, centroidVectorMap);
                     Clusters = clusteringPair.mapPair;
                     
-                    System.out.println("Iteration: " + iterationCount);
+                    System.out.println("Iteration: " + (iterationCount-1));
                     System.out.println("Average Distance: " + clusteringPair.doublePair);
                     
                     tempClusters.clear();
@@ -680,12 +710,22 @@ public class Main {
                 }
                 // End of while (iterationCount < iterations
                 // Because of reclustering must print tempClusters
-                System.out.println(tempClusters);
+                if (cmd.hasOption("k")) {
+                    System.out.println(tempClusters);
+                }
+                else {
+                    
+                }
             }
             // End of if (iterations > 1)
             // Else meaning, if iterations == 1;
             else {
-               System.out.println(Clusters); 
+                if (cmd.hasOption("k")) {
+                    System.out.println(Clusters); 
+                }
+                else {
+                    
+                }
             }
         }
     }
