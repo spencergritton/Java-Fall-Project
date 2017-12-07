@@ -177,6 +177,43 @@ public class Main {
         return returnValue;
     }
     
+    public static Map<String, List<String>> closestClustering(Map<String, Map<String, Double>> VectorMap, Map<String, List<String>> Clusters, boolean usingCentroidVectorMap, Map<String, Map<String, Double>> centroidVectorMap) {
+        // For each unique word in the text
+        for (Map.Entry<String, Map<String, Double>> entry : VectorMap.entrySet()) { 
+        // if the word is not a cluster point
+            if (!Clusters.containsKey(entry.getKey())) {
+        // Calculate the euclidean distance between the point and every cluster
+                // Store the cluster String and it's euclidean distance to the "point" entry.getKey()
+                Map<String, Double> tempCluster = new HashMap<>();
+                // For each Cluster point
+                for (Map.Entry<String, List<String>> innerEntry : Clusters.entrySet()) {
+                    // Put the euclidean similarity of the cluster into the tempCluster map for later comparisons
+                    if (!usingCentroidVectorMap) {
+                    tempCluster.put(innerEntry.getKey(), EuclideanSimilarity(entry.getKey(), innerEntry.getKey(), entry.getValue(), VectorMap.get(innerEntry.getKey())));
+                    }
+                    else {
+                        tempCluster.put(innerEntry.getKey(), EuclideanSimilarity(entry.getKey(), innerEntry.getKey(), entry.getValue(), centroidVectorMap.get(innerEntry.getKey())));
+                    }
+                }
+        // Add the point to the cluster of the most similar word
+                tempCluster = mapValuesSorted(tempCluster);
+                boolean firstElement = true;
+                for (Map.Entry<String, Double> innerEntry : tempCluster.entrySet()) {
+                    if (firstElement) {
+                        // innerEntry.getKey() is the cluster most similar to entry.getKey()
+                        // So add entry.getKey() to innerEntry.getKey() 's cluster
+                        List<String> tempList = Clusters.get(innerEntry.getKey());
+                        tempList.add(entry.getKey());
+                        Clusters.replace(innerEntry.getKey(), tempList);
+                        firstElement = false;
+                    }
+                    break;
+                }
+            }
+        }
+        return Clusters;
+    }
+    
     public static void main(String[] args) throws IOException {
         
         Options options = new Options();
@@ -539,34 +576,8 @@ public class Main {
             // To find this we have to find the euclidean distance of every word to every cluster and put it in the 
             // cluster with the euclidean distance closest to 1.
             
-            // For each unique word in the text
-            for (Map.Entry<String, Map<String, Double>> entry : VectorMap.entrySet()) { 
-            // if the word is not a cluster point
-                if (!Clusters.containsKey(entry.getKey())) {
-            // Calculate the euclidean distance between the point and every cluster
-                    // Store the cluster String and it's euclidean distance to the "point" entry.getKey()
-                    Map<String, Double> tempCluster = new HashMap<>();
-                    // For each Cluster point
-                    for (Map.Entry<String, List<String>> innerEntry : Clusters.entrySet()) {
-                        // Put the euclidean similarity of the cluster into the tempCluster map for later comparisons
-                        tempCluster.put(innerEntry.getKey(), EuclideanSimilarity(entry.getKey(), innerEntry.getKey(), entry.getValue(), VectorMap.get(innerEntry.getKey())));
-                    }
-            // Add the point to the cluster of the most similar word
-                    tempCluster = mapValuesSorted(tempCluster);
-                    boolean firstElement = true;
-                    for (Map.Entry<String, Double> innerEntry : tempCluster.entrySet()) {
-                        if (firstElement) {
-                            // innerEntry.getKey() is the cluster most similar to entry.getKey()
-                            // So add entry.getKey() to innerEntry.getKey() 's cluster
-                            List<String> tempList = Clusters.get(innerEntry.getKey());
-                            tempList.add(entry.getKey());
-                            Clusters.replace(innerEntry.getKey(), tempList);
-                            firstElement = false;
-                        }
-                        break;
-                    }
-                }
-            }
+            Clusters = closestClustering(VectorMap, Clusters, false, null);
+            
             // if k-means must be calculated ITER (iterations) times.
             // in this case must calculate centroid's and recalculate clusters until have iterated over the cluster iter times.
             // only do this if iterations > 1, if iterations == 1 then simply return Clusters as the iteration
@@ -643,10 +654,16 @@ public class Main {
                     Clusters.clear();
                     // Clear out clusters because it must be filled with new mappings of {cluster, [word, word], ~~}
                     // First fill clusters with new cluster names
+                    for (Map.Entry<String, Map<String, Double>> centroid: centroidVectorMap.entrySet()) {
+                        List<String> tempList = new ArrayList<>();
+                        Clusters.put(centroid.getKey(), tempList);
+                    }
+                    // Then cluster the points to their nearest centroid
+                    Clusters = closestClustering(VectorMap, Clusters, true, centroidVectorMap);
                     
                 }
                 // End of while (iterationCount < iterations
-                System.out.println(centroidVectorMap);
+                System.out.println(Clusters);
             }
             // End of if (iterations > 1)
         }
