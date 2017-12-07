@@ -544,11 +544,19 @@ public class Main {
             
             String tWord = cmd.getOptionValue("t");
             String[] argArray = tWord.split(",");
+            Double tInt = 0.0;
 
-            // tWord is the word we are finding words most similar to
-            // tInt is how many similar words we are finding
-            tWord = argArray[0];
-            Double tInt = Double.parseDouble(argArray[1]);
+            try {
+                // tWord is the word we are finding words most similar to
+                // tInt is how many similar words we are finding
+                tWord = argArray[0];
+                tInt = Double.parseDouble(argArray[1]);
+            }
+            catch (java.lang.ArrayIndexOutOfBoundsException e) {
+                System.err.println("please use a valid input.. With no spaces between arguements");
+                System.err.println("ex: -f\"filename\" -t cat,5");
+                System.exit(1);
+            }
             
             // if tWord not in VectorMap return error
             if (VectorMap.get(tWord) == null) {
@@ -620,19 +628,33 @@ public class Main {
                 String kInput = cmd.getOptionValue("k");
                 String[] argArray = kInput.split(",");
 
+                try {
                 // clusters is how many clusters
                 // iterations is how many iterations of k-means to do
                 clusters = Integer.parseInt(argArray[0]);
                 iterations = Integer.parseInt(argArray[1]);
+                }
+                catch (java.lang.ArrayIndexOutOfBoundsException e) {
+                    System.err.println("please use a valid input.. With no spaces between arguements");
+                    System.err.println("ex: -f\"filename\" -k 5,3 .. or -j 2,3,2");
+                    System.exit(1);
+                }
             }
             else {
                 String jInput = cmd.getOptionValue("j");
                 String[] argArray = jInput.split(",");
-                // clusters is how many clusters
-                // iterations is how many iterations of k-means to do
-                clusters = Integer.parseInt(argArray[0]);
-                iterations = Integer.parseInt(argArray[1]);
-                topJ = Integer.parseInt(argArray[2]);
+                try {
+                    // clusters is how many clusters
+                    // iterations is how many iterations of k-means to do
+                    clusters = Integer.parseInt(argArray[0]);
+                    iterations = Integer.parseInt(argArray[1]);
+                    topJ = Integer.parseInt(argArray[2]);
+                }
+                catch (java.lang.ArrayIndexOutOfBoundsException e) {
+                    System.err.println("please use a valid input.. With no spaces between arguements");
+                    System.err.println("ex: -f\"filename\" -k 5,3 .. or -j 2,3,2");
+                    System.exit(1);
+                }
             }
             
             // Print error if k # of clusters is set to 0.
@@ -766,7 +788,7 @@ public class Main {
                     tempClusters.clear();
                     tempClusters.putAll(Clusters);
                 }
-                // End of while (iterationCount < iterations
+                // End of while (iterationCount < iterations    
                 // Because of reclustering must print tempClusters
                 if (cmd.hasOption("k")) {
                     System.out.println(tempClusters);
