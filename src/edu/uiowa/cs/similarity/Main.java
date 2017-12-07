@@ -177,7 +177,9 @@ public class Main {
         return returnValue;
     }
     
-    public static Map<String, List<String>> closestClustering(Map<String, Map<String, Double>> VectorMap, Map<String, List<String>> Clusters, boolean usingCentroidVectorMap, Map<String, Map<String, Double>> centroidVectorMap) {
+    public static Pair closestClustering(Map<String, Map<String, Double>> VectorMap, Map<String, List<String>> Clusters, boolean usingCentroidVectorMap, Map<String, Map<String, Double>> centroidVectorMap) {
+        // List to track the AVERAGE euclidean distance for each iteration
+        List<Double> AverageEuclideanDistance = new ArrayList<>();
         // For each unique word in the text
         for (Map.Entry<String, Map<String, Double>> entry : VectorMap.entrySet()) { 
         // if the word is not a cluster point
@@ -189,10 +191,14 @@ public class Main {
                 for (Map.Entry<String, List<String>> innerEntry : Clusters.entrySet()) {
                     // Put the euclidean similarity of the cluster into the tempCluster map for later comparisons
                     if (!usingCentroidVectorMap) {
-                    tempCluster.put(innerEntry.getKey(), EuclideanSimilarity(entry.getKey(), innerEntry.getKey(), entry.getValue(), VectorMap.get(innerEntry.getKey())));
+                        Double EuclideanDistance = EuclideanSimilarity(entry.getKey(), innerEntry.getKey(), entry.getValue(), VectorMap.get(innerEntry.getKey()));
+                        AverageEuclideanDistance.add(EuclideanDistance);
+                        tempCluster.put(innerEntry.getKey(), EuclideanDistance);
                     }
                     else {
-                        tempCluster.put(innerEntry.getKey(), EuclideanSimilarity(entry.getKey(), innerEntry.getKey(), entry.getValue(), centroidVectorMap.get(innerEntry.getKey())));
+                        Double EuclideanDistance = EuclideanSimilarity(entry.getKey(), innerEntry.getKey(), entry.getValue(), centroidVectorMap.get(innerEntry.getKey()));
+                        AverageEuclideanDistance.add(EuclideanDistance);
+                        tempCluster.put(innerEntry.getKey(), EuclideanDistance);
                     }
                 }
         // Add the point to the cluster of the most similar word
@@ -211,7 +217,15 @@ public class Main {
                 }
             }
         }
-        return Clusters;
+        Double avgEucDistance = 0.0;
+        for (Double item: AverageEuclideanDistance) {
+            avgEucDistance += item;
+        }
+        avgEucDistance = avgEucDistance/AverageEuclideanDistance.size();
+        
+        Pair returnPair = new Pair(Clusters, avgEucDistance);
+        
+        return returnPair;
     }
     
     public static void main(String[] args) throws IOException {
@@ -577,7 +591,10 @@ public class Main {
             // To find this we have to find the euclidean distance of every word to every cluster and put it in the 
             // cluster with the euclidean distance closest to 1.
             
-            Clusters = closestClustering(VectorMap, Clusters, false, null);
+            Pair clusteringPair = closestClustering(VectorMap, Clusters, false, null);
+            Clusters = clusteringPair.mapPair;
+            System.out.println("Iteration: 0");
+            System.out.println("Average Distance: " + clusteringPair.doublePair);
             
             // if k-means must be calculated ITER (iterations) times.
             // in this case must calculate centroid's and recalculate clusters until have iterated over the cluster iter times.
@@ -652,7 +669,12 @@ public class Main {
                         Clusters.put(centroid.getKey(), tempList);
                     }
                     // Then cluster the points to their nearest centroid
-                    Clusters = closestClustering(VectorMap, Clusters, true, centroidVectorMap);
+                    clusteringPair = closestClustering(VectorMap, Clusters, true, centroidVectorMap);
+                    Clusters = clusteringPair.mapPair;
+                    
+                    System.out.println("Iteration: " + iterationCount);
+                    System.out.println("Average Distance: " + clusteringPair.doublePair);
+                    
                     tempClusters.clear();
                     tempClusters.putAll(Clusters);
                 }
