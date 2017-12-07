@@ -569,47 +569,86 @@ public class Main {
             }
             // if k-means must be calculated ITER (iterations) times.
             // in this case must calculate centroid's and recalculate clusters until have iterated over the cluster iter times.
+            // only do this if iterations > 1, if iterations == 1 then simply return Clusters as the iteration
             if (iterations > 1) {
                 int iterationCount = 1;
-                // while we still have to re-calculate k-means
+                // Vector map of all centroids
                 Map<String, Map<String, Double>> centroidVectorMap = new HashMap<>();
+                // while we still have to re-calculate k-means
                 while (iterationCount < iterations) {
                     // First we must calculate the new centroids of each cluster. These will be the new clustering points
                     // To do this for loop over the "Clusters" Map
                     // To generate the name for each Cluster, calculate cluster number on with int clusterNumber
                     int clusterNumber = 1;
                     // For each cluster
-                    for (Map.Entry<String, List<String>> entry: Clusters.entrySet()) {
+                    // Two cases
+                    // 1. if iterationCount = 1 meaning only the first k-random iteration has been done
+                    // -----------BEGIN CALCULATION OF NEW CENTROIDS --------------------
+                    if (iterationCount == 1) {
+                        // for each centroid in clusters, calculate a new centroid
+                        for (Map.Entry<String, List<String>> entry: Clusters.entrySet()) {
+                            // New Centroid
+                            String centroidName = "Centroid: " + Integer.toString(clusterNumber); 
+                            Map<String, Double> centroidValues = new HashMap<>();
+                            // Since iteration count == 1 that means that Clusters map keys are actual words.
+                            // These words should be in the new centroid so add all of the words values to the new centroid
+                            // Put every element (vector) of current centroid (entry.getKey())) into the new centroid
+                            for (Map.Entry<String, Double> innerEntry: VectorMap.get(entry.getKey()).entrySet()) {
+                                centroidValues.put(innerEntry.getKey(), innerEntry.getValue());
+                            }
+                            
+                            // Now must add every word from every vector in the old centroid to centroidValues
+                            // for each word in the current cluster
+                            for (String wordInCluster: entry.getValue()) {
+                                // Map<String, Double> wordVector = VectorMap.get(wordInCluster);
+                                // for every word in the wordInCluster's vector, add it's value
+                                // VectorEntry = {word: 1, word:5}
+                                for (Map.Entry<String, Double> vectorEntry: VectorMap.get(wordInCluster).entrySet()) {
+                                    if (!centroidValues.containsKey(vectorEntry.getKey())) {
+                                        centroidValues.put(vectorEntry.getKey(), vectorEntry.getValue());
+                                    }
+                                    else {
+                                        centroidValues.put(vectorEntry.getKey(), centroidValues.get(vectorEntry.getKey()) + vectorEntry.getValue());
+                                    }
+                                }
+                            }
+                            
+                            // Now all values and words have been added to the new centroid
+                            // The last step is to simply divide each value by "r" to average out the centroid.
+                            int rSize = entry.getValue().size() + 1; // this value is +1 to account for centroid "word" being a part of the new centroid
+                            for (Map.Entry<String, Double> centroidEntry: centroidValues.entrySet()) {
+                                centroidValues.replace(centroidEntry.getKey(), centroidEntry.getValue()/rSize);
+                            }
+                            // Add completed centroid to centroidVectorMap
+                            centroidVectorMap.put(centroidName, centroidValues);
+                            clusterNumber ++;
+                        }
+                    }
+                    
+                    // 2. if iterationCount > 1 this means that current centroids are calculated strictly from centroidVectorMap
+                    // This also means that we only take the words inside the centroid for the average and don't include the outer word
+                    // Also means that centroidVectorMap must be prefilled with centroids
+                    else {
                         // New Centroid
                         String centroidName = "Centroid: " + Integer.toString(clusterNumber); 
                         Map<String, Double> centroidValues = new HashMap<>();
                         
-                        // Put every element of current centroid (entry.getKey())) into the new centroid
-                            // Two cases
-                            // 1. If current centroid is an actual word.. (which only happens on iterationCount == 1
-                            if (iterationCount == 1) {
-                                VectorMap.get(entry.getKey()).putAll(centroidValues);
-                            }
-                            // 2. If current centroid is a centroid and not a word.
-                            else {
-                                
-                            }
-                        // Add all other elements to current centroid
-                        
-                        // Divide all elements by "r"
-                        
-                        // Add new centroid to temp map
-                        
-                        // increase clusterNumber
-                        clusterNumber ++;
                     }
-                    // After all centroids have been added to tempMap
-                    // Set Clusters = tempMap
-                    // Then calculate the new clustered words based on new centroids.
                     iterationCount ++;
+                    // ------------------------- END CALCULATION OF NEW CENTROIDS ----------------------
+                    // Now we know for a fact that centroidVectorMap is full of "k" centroids.
+                    // For each of these "k" new centroids we must find all the points that belong in their respective cluster
+                    // To do this we must find the euclidean distance between every word and every centroid
+                    // Then add each word to the centroid it is closest to.
+                    Clusters.clear();
+                    // Clear out clusters because it must be filled with new mappings of {cluster, [word, word], ~~}
+                    // First fill clusters with new cluster names
+                    
                 }
+                // End of while (iterationCount < iterations
+                System.out.println(centroidVectorMap);
             }
-            System.out.println(Clusters);
+            // End of if (iterations > 1)
         }
     }
 }
