@@ -228,6 +228,64 @@ public class Main {
         return returnPair;
     }
     
+    public static Map<String, List<String>> topClosestToCentroid(Map<String, Map<String, Double>> VectorMap, Map<String, List<String>> Clusters, Map<String, Map<String, Double>> centroidVectorMap, boolean usingCentroidMap, int topJ) {
+        Map<String, Map<String, Double>> tempList = new HashMap<>();
+        Map<String, List<String>> returnMap = new HashMap<>();
+        
+        // For each centroid
+        for (Map.Entry<String, List<String>> eachCentroid: Clusters.entrySet()) {
+            // Create new map to store how close each point is to the centroid
+            Map<String, Double> innerEuclideanClosenessMap = new HashMap<>();
+
+            if (!usingCentroidMap) {
+                // Add the centroid itself because it is a word in it's own cluster
+                innerEuclideanClosenessMap.put(eachCentroid.getKey(), 1.0);
+            }
+
+            // Calculate the closeness between each word and the centroid, and add to innerEuclideanClosenessMap
+            // for each word in each centroid
+            for (String word: eachCentroid.getValue()) {
+                if (!usingCentroidMap) {
+                    // add word and euclidan similarity to inner map.
+                    innerEuclideanClosenessMap.put(word, EuclideanSimilarity(eachCentroid.getKey(), word, VectorMap.get(eachCentroid.getKey()), VectorMap.get(word)));
+                }
+                else {
+                    // add word and euclidan similarity to inner map.
+                innerEuclideanClosenessMap.put(word, EuclideanSimilarity(eachCentroid.getKey(), word, centroidVectorMap.get(eachCentroid.getKey()), VectorMap.get(word)));
+                }
+            }
+            innerEuclideanClosenessMap = mapValuesSorted(innerEuclideanClosenessMap);
+            
+            if (innerEuclideanClosenessMap.size() > topJ) {
+                    Map<String, Double> tempMap = new HashMap<>();
+                    
+                    for (Map.Entry<String, Double> entry : innerEuclideanClosenessMap.entrySet()) {
+                        if (tempMap.size()!= topJ) {
+                            tempMap.put(entry.getKey(), entry.getValue());
+                        }
+                    }
+                    tempMap = mapValuesSorted(tempMap);
+                    innerEuclideanClosenessMap.clear();
+                    innerEuclideanClosenessMap.putAll(tempMap);
+                }
+            
+            tempList.put(eachCentroid.getKey(), innerEuclideanClosenessMap);
+        }
+        
+        // for each map in tempList, add centroid and all elements into returnMap for returning
+        for (Map.Entry<String, Map<String, Double>> eachCentroid: tempList.entrySet()) {
+            String centroidName = eachCentroid.getKey();
+            List<String> cluster = new ArrayList<>();
+            
+            for (Map.Entry<String, Double> word: eachCentroid.getValue().entrySet()) {
+                cluster.add(word.getKey());
+            }
+            returnMap.put(centroidName, cluster);
+        }
+        
+        return returnMap;
+    }
+    
     public static void main(String[] args) throws IOException {
         
         Options options = new Options();
@@ -714,7 +772,7 @@ public class Main {
                     System.out.println(tempClusters);
                 }
                 else {
-                    
+                    System.out.println(topClosestToCentroid(VectorMap, tempClusters, centroidVectorMap, true, topJ));
                 }
             }
             // End of if (iterations > 1)
@@ -724,7 +782,7 @@ public class Main {
                     System.out.println(Clusters); 
                 }
                 else {
-                    
+                    System.out.println(topClosestToCentroid(VectorMap, tempClusters, null, false, topJ));
                 }
             }
         }
