@@ -6,6 +6,8 @@ import opennlp.tools.stemmer.*;
 import java.io.*;
 import java.util.*;
 
+// Spencer Gritton & Brady Hoskins
+
 public class Main {
     
     public static TreeMap<String, Double> mapValuesSorted(Map<String, Double> map) {
